@@ -167,24 +167,35 @@ function table(rows: string[][]): string {
   );
 }
 
+/**
+ * 84 full analytics + forecast runs: under a second alone, but CI's coverage job runs
+ * it instrumented alongside every other file and measured 5.1 s, over Vitest's 5 s
+ * default. The budget is for that contention, not for a slow test.
+ */
+const BASELINE_TIMEOUT_MS = 30_000;
+
 describe("load-balance baseline (phase 0)", () => {
-  it("records the current freshness model across fixtures and weekdays", async () => {
-    // test/time-travel.ts may already have faked Date; reuse it rather than undo it.
-    const alreadyFaked = vi.isFakeTimers();
-    const restoreTo = Date.now();
-    if (!alreadyFaked) vi.useFakeTimers({ toFake: ["Date"] });
-    const rows: string[][] = [];
-    try {
-      for (const [name, build] of Object.entries(FIXTURES)) {
-        for (const instant of WEEK) {
-          vi.setSystemTime(instant);
-          rows.push(row(name, build));
+  it(
+    "records the current freshness model across fixtures and weekdays",
+    { timeout: BASELINE_TIMEOUT_MS },
+    async () => {
+      // test/time-travel.ts may already have faked Date; reuse it rather than undo it.
+      const alreadyFaked = vi.isFakeTimers();
+      const restoreTo = Date.now();
+      if (!alreadyFaked) vi.useFakeTimers({ toFake: ["Date"] });
+      const rows: string[][] = [];
+      try {
+        for (const [name, build] of Object.entries(FIXTURES)) {
+          for (const instant of WEEK) {
+            vi.setSystemTime(instant);
+            rows.push(row(name, build));
+          }
         }
+      } finally {
+        if (alreadyFaked) vi.setSystemTime(restoreTo);
+        else vi.useRealTimers();
       }
-    } finally {
-      if (alreadyFaked) vi.setSystemTime(restoreTo);
-      else vi.useRealTimers();
-    }
-    await expect(table(rows)).toMatchFileSnapshot("./__snapshots__/load-balance-baseline.txt");
-  });
+      await expect(table(rows)).toMatchFileSnapshot("./__snapshots__/load-balance-baseline.txt");
+    },
+  );
 });
