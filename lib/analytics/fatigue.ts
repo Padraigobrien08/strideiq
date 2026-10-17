@@ -44,6 +44,12 @@ export interface FatigueSnapshot {
   restDaysSinceLastRun: number;
   evidence: string[];
   usesProxyLoad: boolean;
+  /**
+   * Whether there is enough history for the load balance to mean anything. Decisions
+   * (Today, the planner, plan safety, the forecast, outcome learning) must not act on
+   * the balance when `sufficient` is false. See `assessLoadEvidence`.
+   */
+  loadEvidence: LoadEvidence;
   /** Which per-run load the model used — one source per athlete. See `lib/analytics/loadModel.ts`. */
   loadSource: LoadSource;
   /** The athlete's reported leg-feel for the day, if any — rides the snapshot to every consumer. */
@@ -289,6 +295,64 @@ export function applyCurrency(
   return { freshness, label };
 }
 
+export interface LoadEvidence {
+  sufficient: boolean;
+  /** Low when insufficient or intensity-blind (distance only); high after twelve weeks. */
+  confidence: "low" | "medium" | "high";
+  /** Calendar days from the first run to today. */
+  historyDays: number;
+  runCount: number;
+  /** Plain-language reasons the reading is limited; empty when nothing limits it. */
+  reasons: string[];
+}
+
+/** Four weeks: what the seeded averages need before a deviation means something. */
+export const MIN_LOAD_HISTORY_DAYS = 28;
+/** A long span with a handful of runs is still no basis for a balance. */
+export const MIN_LOAD_RUNS = 4;
+
+/**
+ * Is there enough history for the balance to be evidence?
+ *
+ * Seeding (see `acuteChronicLoad`) removed the systematic "new athletes look
+ * fatigued" bias, but with under four weeks of runs the averages still rest on a
+ * week or two of load, and one long run swings the reading. Those athletes get
+ * "not enough evidence": decisions fall back to schedule and intensity rules rather
+ * than treating the number as a finding.
+ */
+export function assessLoadEvidence(
+  runs: RunActivity[],
+  model: LoadModel,
+  asOf: Date = new Date(),
+): LoadEvidence {
+  const runCount = runs.length;
+  const earliest = runs.reduce<string | null>(
+    (min, r) => (min === null || r.date < min ? r.date : min),
+    null,
+  );
+  const historyDays = earliest
+    ? Math.max(0, differenceInCalendarDays(asOf, parseISO(earliest)))
+    : 0;
+
+  const reasons: string[] = [];
+  if (historyDays < MIN_LOAD_HISTORY_DAYS) {
+    reasons.push(
+      `Only ${historyDays} days of training history; the load balance needs ${MIN_LOAD_HISTORY_DAYS} to settle.`,
+    );
+  }
+  if (runCount < MIN_LOAD_RUNS) {
+    reasons.push(`Only ${runCount} runs; the load balance needs at least ${MIN_LOAD_RUNS}.`);
+  }
+  const sufficient = reasons.length === 0;
+  if (model.source === "distance") {
+    reasons.push("Load from distance only: session intensity is not counted.");
+  }
+
+  const confidence =
+    !sufficient || model.source === "distance" ? "low" : historyDays < 84 ? "medium" : "high";
+  return { sufficient, confidence, historyDays, runCount, reasons };
+}
+
 const LOAD_SOURCE_EVIDENCE: Record<LoadSource, string> = {
   relative_effort: "Load from Strava Relative Effort, scaled to a distance-equivalent unit.",
   training_load: "Load from Strava Training Load, scaled to a distance-equivalent unit.",
@@ -301,6 +365,7 @@ export function buildFatigueSnapshot(
   calibration: FeelCalibration = DEFAULT_FEEL_CALIBRATION,
 ): FatigueSnapshot {
   const model = resolveLoadModel(runs);
+  const loadEvidence = assessLoadEvidence(runs, model);
   const series = weeklyLoadSeries(runs, new Date(), model);
   const usesProxyLoad = model.source === "distance";
 
@@ -320,6 +385,7 @@ export function buildFatigueSnapshot(
     `Chronic load (CTL): ${ctl} · Acute load (ATL): ${atl} · Balance (TSB): ${tsb > 0 ? "+" : ""}${tsb} (${formPct > 0 ? "+" : ""}${Math.round(formPct)}% of CTL).`,
     `Rest days since last run: ${restDaysSinceLastRun}.`,
     LOAD_SOURCE_EVIDENCE[model.source],
+    ...(loadEvidence.sufficient ? [] : loadEvidence.reasons.slice(0, 1)),
   ];
 
   if (history.length >= 2) {
@@ -359,6 +425,7 @@ export function buildFatigueSnapshot(
     restDaysSinceLastRun,
     evidence,
     usesProxyLoad,
+    loadEvidence,
     loadSource: model.source,
     reportedLegFeel: legFeel,
   };

@@ -141,6 +141,13 @@ const fatigue = (freshness: number): FatigueSnapshot => ({
   evidence: [],
   usesProxyLoad: false,
   loadSource: "training_load",
+  loadEvidence: {
+    sufficient: true,
+    confidence: "high",
+    historyDays: 120,
+    runCount: 40,
+    reasons: [],
+  },
 });
 
 const strategy = (fadeRisk: RaceStrategy["fadeRisk"]): RaceStrategy =>

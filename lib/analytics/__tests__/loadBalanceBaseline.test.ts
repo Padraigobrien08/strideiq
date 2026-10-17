@@ -83,6 +83,8 @@ const FIXTURES: Record<string, () => { runs: RunActivity[]; demo?: boolean }> = 
   "steady/no-hr": () => ({ runs: block(40, "no-hr") }),
   "new/1wk": () => ({ runs: block(3, "csv-full") }),
   "new/3wk": () => ({ runs: block(10, "csv-full") }),
+  // Exactly 28 days from the first run: the first day the load balance counts.
+  "new/4wk": () => ({ runs: block(14, "csv-full") }),
   "new/6wk": () => ({ runs: block(21, "csv-full") }),
   sporadic: () => ({
     runs: [40, 31, 22, 12, 3].map((d, i) => run(d, "easy", "csv-full", i)),
@@ -100,6 +102,7 @@ const COLUMNS = [
   "atl",
   "tsb",
   "form%",
+  "evidence",
   "fresh",
   "label",
   "balance",
@@ -140,6 +143,7 @@ function row(name: string, build: () => { runs: RunActivity[]; demo?: boolean })
     String(f.atl),
     String(f.tsb),
     String(f.formPct),
+    `${f.loadEvidence.sufficient ? "ok" : "none"}/${f.loadEvidence.confidence}`,
     String(f.freshness),
     f.label,
     f.readiness.balance,

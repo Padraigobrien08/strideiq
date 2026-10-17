@@ -16,6 +16,13 @@ function fatigue(overrides: Partial<FatigueSnapshot> = {}): FatigueSnapshot {
     evidence: [],
     usesProxyLoad: false,
     loadSource: "training_load",
+    loadEvidence: {
+      sufficient: true,
+      confidence: "high",
+      historyDays: 120,
+      runCount: 40,
+      reasons: [],
+    },
     ...overrides,
   };
 }

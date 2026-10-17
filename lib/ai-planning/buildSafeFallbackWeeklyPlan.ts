@@ -218,7 +218,10 @@ export function buildSafeFallbackWeeklyPlan(
     summary = `Taper week: volume ~${Math.round(cap)} km cap, one short quality touch, controlled long run.`;
     primaryGoal = "Reduce fatigue while keeping specificity";
   } else if (!context.goal) {
-    const per = Math.round((cap / 4) * 10) / 10;
+    // Sized from the weekly cap, but no easy run may outgrow the long run, and the long
+    // run (per × 1.4) may not pass its own cap. For a high-volume athlete cap / 4 alone
+    // gave 46 km easy runs against a 22 km long-run cap, which the validator rejects.
+    const per = Math.round(Math.min(cap / 4, guardrails.longRunMaxKm / 1.4) * 10) / 10;
     workouts = [
       session({
         day: "Mon",
@@ -252,8 +255,10 @@ export function buildSafeFallbackWeeklyPlan(
     primaryGoal = "Sustain consistency without a target race";
   } else {
     hardSessionCount = Math.min(2, guardrails.maxHardSessions);
-    const easyKm = Math.round(cap * 0.22 * 10) / 10;
     const longKm = Math.min(guardrails.longRunMaxKm, cap * 0.35);
+    // Easy runs keep their 0.22 : 0.35 proportion to the long run once the long run is
+    // capped, so they cannot come out longer than it (same failure as the branch above).
+    const easyKm = Math.round(Math.min(cap * 0.22, longKm * (0.22 / 0.35)) * 10) / 10;
     workouts = [
       session({
         day: "Mon",

@@ -1,85 +1,92 @@
-fixture            day  ctl  atl  tsb   form%  fresh  label      balance   currency   proxy  today     fc.fresh  fc.likely  fc.base
-steady/csv-full    Mon  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/csv-full    Tue  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/csv-full    Wed  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/csv-full    Thu  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/csv-full    Fri  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/csv-full    Sat  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/csv-full    Sun  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/csv-mixed   Mon  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/csv-mixed   Tue  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/csv-mixed   Wed  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/csv-mixed   Thu  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/csv-mixed   Fri  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/csv-mixed   Sat  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/csv-mixed   Sun  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/api         Mon  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/api         Tue  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/api         Wed  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/api         Thu  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/api         Fri  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/api         Sat  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/api         Sun  505  506  -1    -0.2   65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
-steady/no-hr       Mon  421  408  13    3.2    70     Neutral    neutral   current    yes    easy      70        2:01:17    2:01:21
-steady/no-hr       Tue  421  408  13    3.2    70     Neutral    neutral   current    yes    easy      70        2:01:17    2:01:21
-steady/no-hr       Wed  421  408  13    3.2    70     Neutral    neutral   current    yes    easy      70        2:01:17    2:01:21
-steady/no-hr       Thu  421  408  13    3.2    70     Neutral    neutral   current    yes    easy      70        2:01:17    2:01:21
-steady/no-hr       Fri  421  408  13    3.2    70     Neutral    neutral   current    yes    easy      70        2:01:17    2:01:21
-steady/no-hr       Sat  421  408  13    3.2    70     Neutral    neutral   current    yes    easy      70        2:01:17    2:01:21
-steady/no-hr       Sun  421  408  13    3.2    70     Neutral    neutral   current    yes    easy      70        2:01:17    2:01:21
-new/1wk            Mon  433  433  0     0      65     Neutral    neutral   current    no     easy      65        1:46:25    1:44:20
-new/1wk            Tue  433  433  0     0      65     Neutral    neutral   current    no     easy      65        1:46:25    1:44:20
-new/1wk            Wed  433  433  0     0      65     Neutral    neutral   current    no     easy      65        1:46:25    1:44:20
-new/1wk            Thu  433  433  0     0      65     Neutral    neutral   current    no     easy      65        1:46:25    1:44:20
-new/1wk            Fri  433  433  0     0      65     Neutral    neutral   current    no     easy      65        1:46:25    1:44:20
-new/1wk            Sat  433  433  0     0      65     Neutral    neutral   current    no     easy      65        1:46:25    1:44:20
-new/1wk            Sun  433  433  0     0      65     Neutral    neutral   current    no     easy      65        1:46:25    1:44:20
-new/3wk            Mon  503  462  41    8.2    77     Neutral    neutral   current    no     long      77        1:42:05    1:42:15
-new/3wk            Tue  503  462  41    8.2    77     Neutral    neutral   current    no     long      77        1:42:05    1:42:15
-new/3wk            Wed  503  462  41    8.2    77     Neutral    neutral   current    no     long      77        1:42:05    1:42:15
-new/3wk            Thu  503  462  41    8.2    77     Neutral    neutral   current    no     long      77        1:42:05    1:42:15
-new/3wk            Fri  503  462  41    8.2    77     Neutral    neutral   current    no     long      77        1:42:05    1:42:15
-new/3wk            Sat  503  462  41    8.2    77     Neutral    neutral   current    no     long      77        1:42:05    1:42:15
-new/3wk            Sun  503  462  41    8.2    77     Neutral    neutral   current    no     long      77        1:42:05    1:42:15
-new/6wk            Mon  527  552  -25   -4.8   59     Neutral    neutral   current    no     easy      59        1:40:02    1:40:02
-new/6wk            Tue  527  552  -25   -4.8   59     Neutral    neutral   current    no     easy      59        1:40:02    1:40:02
-new/6wk            Wed  527  552  -25   -4.8   59     Neutral    neutral   current    no     easy      59        1:40:02    1:40:02
-new/6wk            Thu  527  552  -25   -4.8   59     Neutral    neutral   current    no     easy      59        1:40:02    1:40:02
-new/6wk            Fri  527  552  -25   -4.8   59     Neutral    neutral   current    no     easy      59        1:40:02    1:40:02
-new/6wk            Sat  527  552  -25   -4.8   59     Neutral    neutral   current    no     easy      59        1:40:02    1:40:02
-new/6wk            Sun  527  552  -25   -4.8   59     Neutral    neutral   current    no     easy      59        1:40:02    1:40:02
-sporadic           Mon  82   93   -10   -12.7  48     Neutral    neutral   current    no     easy      48        2:11:12    2:01:21
-sporadic           Tue  82   93   -10   -12.7  48     Neutral    neutral   current    no     easy      48        2:11:12    2:01:21
-sporadic           Wed  82   93   -10   -12.7  48     Neutral    neutral   current    no     easy      48        2:11:12    2:01:21
-sporadic           Thu  82   93   -10   -12.7  48     Neutral    neutral   current    no     easy      48        2:11:12    2:01:21
-sporadic           Fri  82   93   -10   -12.7  48     Neutral    neutral   current    no     easy      48        2:11:12    2:01:21
-sporadic           Sat  82   93   -10   -12.7  48     Neutral    neutral   current    no     easy      48        2:11:12    2:01:21
-sporadic           Sun  82   93   -10   -12.7  48     Neutral    neutral   current    no     easy      48        2:11:12    2:01:21
-spike/last7d×2     Mon  648  840  -192  -29.6  27     Fatigued   fatigued  current    no     recovery  27        1:36:05    1:35:00
-spike/last7d×2     Tue  648  840  -192  -29.6  27     Fatigued   fatigued  current    no     recovery  27        1:36:05    1:35:00
-spike/last7d×2     Wed  648  840  -192  -29.6  27     Fatigued   fatigued  current    no     recovery  27        1:36:05    1:35:00
-spike/last7d×2     Thu  648  840  -192  -29.6  27     Fatigued   fatigued  current    no     recovery  27        1:36:05    1:35:00
-spike/last7d×2     Fri  648  840  -192  -29.6  27     Fatigued   fatigued  current    no     recovery  27        1:36:05    1:35:00
-spike/last7d×2     Sat  648  840  -192  -29.6  27     Fatigued   fatigued  current    no     recovery  27        1:36:05    1:35:00
-spike/last7d×2     Sun  648  840  -192  -29.6  27     Fatigued   fatigued  current    no     recovery  27        1:36:05    1:35:00
-rusty/10d-gap      Mon  309  107  202   65.3   65     Rusty      fresh     rusty      no     tempo     65        1:40:47    1:40:02
-rusty/10d-gap      Tue  309  107  202   65.3   65     Rusty      fresh     rusty      no     tempo     65        1:40:47    1:40:02
-rusty/10d-gap      Wed  309  107  202   65.3   65     Rusty      fresh     rusty      no     tempo     65        1:40:47    1:40:02
-rusty/10d-gap      Thu  309  107  202   65.3   65     Rusty      fresh     rusty      no     tempo     65        1:40:47    1:40:02
-rusty/10d-gap      Fri  309  107  202   65.3   65     Rusty      fresh     rusty      no     tempo     65        1:40:47    1:40:02
-rusty/10d-gap      Sat  309  107  202   65.3   65     Rusty      fresh     rusty      no     tempo     65        1:40:47    1:40:02
-rusty/10d-gap      Sun  309  107  202   65.3   65     Rusty      fresh     rusty      no     tempo     65        1:40:47    1:40:02
-detrained/20d-gap  Mon  189  19   170   89.8   50     Detrained  fresh     detrained  no     tempo     50        1:41:42    1:40:02
-detrained/20d-gap  Tue  189  19   170   89.8   50     Detrained  fresh     detrained  no     tempo     50        1:41:42    1:40:02
-detrained/20d-gap  Wed  189  19   170   89.8   50     Detrained  fresh     detrained  no     tempo     50        1:41:42    1:40:02
-detrained/20d-gap  Thu  189  19   170   89.8   50     Detrained  fresh     detrained  no     tempo     50        1:41:42    1:40:02
-detrained/20d-gap  Fri  189  19   170   89.8   50     Detrained  fresh     detrained  no     tempo     50        1:41:42    1:40:02
-detrained/20d-gap  Sat  189  19   170   89.8   50     Detrained  fresh     detrained  no     tempo     50        1:41:42    1:40:02
-detrained/20d-gap  Sun  189  19   170   89.8   50     Detrained  fresh     detrained  no     tempo     50        1:41:42    1:40:02
-demo               Mon  363  394  -31   -8.6   49     Neutral    neutral   current    no     easy      49        1:37:48    1:37:48
-demo               Tue  363  394  -31   -8.6   49     Neutral    neutral   current    no     easy      49        1:37:48    1:37:48
-demo               Wed  363  394  -31   -8.6   49     Neutral    neutral   current    no     easy      49        1:37:48    1:37:48
-demo               Thu  363  394  -31   -8.6   49     Neutral    neutral   current    no     easy      49        1:37:48    1:37:48
-demo               Fri  363  394  -31   -8.6   49     Neutral    neutral   current    no     easy      49        1:37:48    1:37:48
-demo               Sat  363  394  -31   -8.6   49     Neutral    neutral   current    no     easy      49        1:37:48    1:37:48
-demo               Sun  363  394  -31   -8.6   49     Neutral    neutral   current    no     easy      49        1:37:48    1:37:48
+fixture            day  ctl  atl  tsb   form%  evidence   fresh  label      balance   currency   proxy  today     fc.fresh  fc.likely  fc.base
+steady/csv-full    Mon  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/csv-full    Tue  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/csv-full    Wed  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/csv-full    Thu  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/csv-full    Fri  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/csv-full    Sat  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/csv-full    Sun  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/csv-mixed   Mon  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/csv-mixed   Tue  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/csv-mixed   Wed  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/csv-mixed   Thu  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/csv-mixed   Fri  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/csv-mixed   Sat  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/csv-mixed   Sun  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/api         Mon  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/api         Tue  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/api         Wed  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/api         Thu  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/api         Fri  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/api         Sat  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/api         Sun  505  506  -1    -0.2   ok/medium  65     Neutral    neutral   current    no     tempo     65        1:40:02    1:40:02
+steady/no-hr       Mon  421  408  13    3.2    ok/low     70     Neutral    neutral   current    yes    easy      70        2:01:17    2:01:21
+steady/no-hr       Tue  421  408  13    3.2    ok/low     70     Neutral    neutral   current    yes    easy      70        2:01:17    2:01:21
+steady/no-hr       Wed  421  408  13    3.2    ok/low     70     Neutral    neutral   current    yes    easy      70        2:01:17    2:01:21
+steady/no-hr       Thu  421  408  13    3.2    ok/low     70     Neutral    neutral   current    yes    easy      70        2:01:17    2:01:21
+steady/no-hr       Fri  421  408  13    3.2    ok/low     70     Neutral    neutral   current    yes    easy      70        2:01:17    2:01:21
+steady/no-hr       Sat  421  408  13    3.2    ok/low     70     Neutral    neutral   current    yes    easy      70        2:01:17    2:01:21
+steady/no-hr       Sun  421  408  13    3.2    ok/low     70     Neutral    neutral   current    yes    easy      70        2:01:17    2:01:21
+new/1wk            Mon  433  433  0     0      none/low   65     Neutral    neutral   current    no     easy      50        1:46:25    1:44:20
+new/1wk            Tue  433  433  0     0      none/low   65     Neutral    neutral   current    no     easy      50        1:46:25    1:44:20
+new/1wk            Wed  433  433  0     0      none/low   65     Neutral    neutral   current    no     easy      50        1:46:25    1:44:20
+new/1wk            Thu  433  433  0     0      none/low   65     Neutral    neutral   current    no     easy      50        1:46:25    1:44:20
+new/1wk            Fri  433  433  0     0      none/low   65     Neutral    neutral   current    no     easy      50        1:46:25    1:44:20
+new/1wk            Sat  433  433  0     0      none/low   65     Neutral    neutral   current    no     easy      50        1:46:25    1:44:20
+new/1wk            Sun  433  433  0     0      none/low   65     Neutral    neutral   current    no     easy      50        1:46:25    1:44:20
+new/3wk            Mon  503  462  41    8.2    none/low   77     Neutral    neutral   current    no     long      50        1:42:15    1:42:15
+new/3wk            Tue  503  462  41    8.2    none/low   77     Neutral    neutral   current    no     long      50        1:42:15    1:42:15
+new/3wk            Wed  503  462  41    8.2    none/low   77     Neutral    neutral   current    no     long      50        1:42:15    1:42:15
+new/3wk            Thu  503  462  41    8.2    none/low   77     Neutral    neutral   current    no     long      50        1:42:15    1:42:15
+new/3wk            Fri  503  462  41    8.2    none/low   77     Neutral    neutral   current    no     long      50        1:42:15    1:42:15
+new/3wk            Sat  503  462  41    8.2    none/low   77     Neutral    neutral   current    no     long      50        1:42:15    1:42:15
+new/3wk            Sun  503  462  41    8.2    none/low   77     Neutral    neutral   current    no     long      50        1:42:15    1:42:15
+new/4wk            Mon  465  460  5     1.1    ok/medium  67     Neutral    neutral   current    no     long      67        1:40:02    1:40:02
+new/4wk            Tue  465  460  5     1.1    ok/medium  67     Neutral    neutral   current    no     long      67        1:40:02    1:40:02
+new/4wk            Wed  465  460  5     1.1    ok/medium  67     Neutral    neutral   current    no     long      67        1:40:02    1:40:02
+new/4wk            Thu  465  460  5     1.1    ok/medium  67     Neutral    neutral   current    no     long      67        1:40:02    1:40:02
+new/4wk            Fri  465  460  5     1.1    ok/medium  67     Neutral    neutral   current    no     long      67        1:40:02    1:40:02
+new/4wk            Sat  465  460  5     1.1    ok/medium  67     Neutral    neutral   current    no     long      67        1:40:02    1:40:02
+new/4wk            Sun  465  460  5     1.1    ok/medium  67     Neutral    neutral   current    no     long      67        1:40:02    1:40:02
+new/6wk            Mon  527  552  -25   -4.8   ok/medium  59     Neutral    neutral   current    no     easy      59        1:40:02    1:40:02
+new/6wk            Tue  527  552  -25   -4.8   ok/medium  59     Neutral    neutral   current    no     easy      59        1:40:02    1:40:02
+new/6wk            Wed  527  552  -25   -4.8   ok/medium  59     Neutral    neutral   current    no     easy      59        1:40:02    1:40:02
+new/6wk            Thu  527  552  -25   -4.8   ok/medium  59     Neutral    neutral   current    no     easy      59        1:40:02    1:40:02
+new/6wk            Fri  527  552  -25   -4.8   ok/medium  59     Neutral    neutral   current    no     easy      59        1:40:02    1:40:02
+new/6wk            Sat  527  552  -25   -4.8   ok/medium  59     Neutral    neutral   current    no     easy      59        1:40:02    1:40:02
+new/6wk            Sun  527  552  -25   -4.8   ok/medium  59     Neutral    neutral   current    no     easy      59        1:40:02    1:40:02
+sporadic           Mon  82   93   -10   -12.7  ok/medium  48     Neutral    neutral   current    no     easy      48        2:11:12    2:01:21
+sporadic           Tue  82   93   -10   -12.7  ok/medium  48     Neutral    neutral   current    no     easy      48        2:11:12    2:01:21
+sporadic           Wed  82   93   -10   -12.7  ok/medium  48     Neutral    neutral   current    no     easy      48        2:11:12    2:01:21
+sporadic           Thu  82   93   -10   -12.7  ok/medium  48     Neutral    neutral   current    no     easy      48        2:11:12    2:01:21
+sporadic           Fri  82   93   -10   -12.7  ok/medium  48     Neutral    neutral   current    no     easy      48        2:11:12    2:01:21
+sporadic           Sat  82   93   -10   -12.7  ok/medium  48     Neutral    neutral   current    no     easy      48        2:11:12    2:01:21
+sporadic           Sun  82   93   -10   -12.7  ok/medium  48     Neutral    neutral   current    no     easy      48        2:11:12    2:01:21
+spike/last7d×2     Mon  648  840  -192  -29.6  ok/medium  27     Fatigued   fatigued  current    no     recovery  27        1:36:05    1:35:00
+spike/last7d×2     Tue  648  840  -192  -29.6  ok/medium  27     Fatigued   fatigued  current    no     recovery  27        1:36:05    1:35:00
+spike/last7d×2     Wed  648  840  -192  -29.6  ok/medium  27     Fatigued   fatigued  current    no     recovery  27        1:36:05    1:35:00
+spike/last7d×2     Thu  648  840  -192  -29.6  ok/medium  27     Fatigued   fatigued  current    no     recovery  27        1:36:05    1:35:00
+spike/last7d×2     Fri  648  840  -192  -29.6  ok/medium  27     Fatigued   fatigued  current    no     recovery  27        1:36:05    1:35:00
+spike/last7d×2     Sat  648  840  -192  -29.6  ok/medium  27     Fatigued   fatigued  current    no     recovery  27        1:36:05    1:35:00
+spike/last7d×2     Sun  648  840  -192  -29.6  ok/medium  27     Fatigued   fatigued  current    no     recovery  27        1:36:05    1:35:00
+rusty/10d-gap      Mon  309  107  202   65.3   ok/high    65     Rusty      fresh     rusty      no     tempo     65        1:40:47    1:40:02
+rusty/10d-gap      Tue  309  107  202   65.3   ok/high    65     Rusty      fresh     rusty      no     tempo     65        1:40:47    1:40:02
+rusty/10d-gap      Wed  309  107  202   65.3   ok/high    65     Rusty      fresh     rusty      no     tempo     65        1:40:47    1:40:02
+rusty/10d-gap      Thu  309  107  202   65.3   ok/high    65     Rusty      fresh     rusty      no     tempo     65        1:40:47    1:40:02
+rusty/10d-gap      Fri  309  107  202   65.3   ok/high    65     Rusty      fresh     rusty      no     tempo     65        1:40:47    1:40:02
+rusty/10d-gap      Sat  309  107  202   65.3   ok/high    65     Rusty      fresh     rusty      no     tempo     65        1:40:47    1:40:02
+rusty/10d-gap      Sun  309  107  202   65.3   ok/high    65     Rusty      fresh     rusty      no     tempo     65        1:40:47    1:40:02
+detrained/20d-gap  Mon  189  19   170   89.8   ok/high    50     Detrained  fresh     detrained  no     tempo     50        1:41:42    1:40:02
+detrained/20d-gap  Tue  189  19   170   89.8   ok/high    50     Detrained  fresh     detrained  no     tempo     50        1:41:42    1:40:02
+detrained/20d-gap  Wed  189  19   170   89.8   ok/high    50     Detrained  fresh     detrained  no     tempo     50        1:41:42    1:40:02
+detrained/20d-gap  Thu  189  19   170   89.8   ok/high    50     Detrained  fresh     detrained  no     tempo     50        1:41:42    1:40:02
+detrained/20d-gap  Fri  189  19   170   89.8   ok/high    50     Detrained  fresh     detrained  no     tempo     50        1:41:42    1:40:02
+detrained/20d-gap  Sat  189  19   170   89.8   ok/high    50     Detrained  fresh     detrained  no     tempo     50        1:41:42    1:40:02
+detrained/20d-gap  Sun  189  19   170   89.8   ok/high    50     Detrained  fresh     detrained  no     tempo     50        1:41:42    1:40:02
+demo               Mon  363  394  -31   -8.6   ok/high    49     Neutral    neutral   current    no     easy      49        1:37:48    1:37:48
+demo               Tue  363  394  -31   -8.6   ok/high    49     Neutral    neutral   current    no     easy      49        1:37:48    1:37:48
+demo               Wed  363  394  -31   -8.6   ok/high    49     Neutral    neutral   current    no     easy      49        1:37:48    1:37:48
+demo               Thu  363  394  -31   -8.6   ok/high    49     Neutral    neutral   current    no     easy      49        1:37:48    1:37:48
+demo               Fri  363  394  -31   -8.6   ok/high    49     Neutral    neutral   current    no     easy      49        1:37:48    1:37:48
+demo               Sat  363  394  -31   -8.6   ok/high    49     Neutral    neutral   current    no     easy      49        1:37:48    1:37:48
+demo               Sun  363  394  -31   -8.6   ok/high    49     Neutral    neutral   current    no     easy      49        1:37:48    1:37:48

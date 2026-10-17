@@ -91,9 +91,15 @@ export function buildRaceForecastInput(opts: {
     },
     athleteContext: {
       readinessScore: analytics.raceReadiness?.score,
-      freshnessScore: analytics.fatigue.freshness,
-      tsb: analytics.fatigue.tsb,
-      formPct: analytics.fatigue.formPct,
+      // Without load evidence the freshness model gets nothing to adjust from and
+      // stays neutral, rather than moving the race time on a week or two of load.
+      ...(analytics.fatigue.loadEvidence.sufficient
+        ? {
+            freshnessScore: analytics.fatigue.freshness,
+            tsb: analytics.fatigue.tsb,
+            formPct: analytics.fatigue.formPct,
+          }
+        : { loadEvidenceInsufficient: true }),
       ctl: analytics.fatigue.ctl,
       atl: analytics.fatigue.atl,
       hardRunsLast14d: analytics.intensityAdvice.hardRunsLast14d,

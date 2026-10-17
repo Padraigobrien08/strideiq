@@ -11,8 +11,10 @@ export async function GET(req: NextRequest) {
   try {
     const { analytics, runs } = await computeAthleteIntelligence(ctx);
     const result = await evaluateRecommendationOutcomes(ctx.userId, runs, analytics.workoutLabels, {
-      freshness: analytics.fatigue.freshness,
-      tsb: analytics.fatigue.tsb,
+      // Too little history and the balance would be judged on noise.
+      ...(analytics.fatigue.loadEvidence.sufficient
+        ? { freshness: analytics.fatigue.freshness, tsb: analytics.fatigue.tsb }
+        : {}),
       readinessScore: analytics.raceReadiness?.score,
       hardRuns14d: analytics.intensityAdvice.hardRunsLast14d,
       legFeel: ctx.legFeel,
