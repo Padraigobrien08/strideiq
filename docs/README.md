@@ -11,6 +11,7 @@
 | [../PRODUCT.md](../PRODUCT.md)                                                   | Product / eng      | Positioning, IA rules, roadmap phases                       |
 | [ARCHITECTURE.md](ARCHITECTURE.md)                                               | Engineers          | Layers, data paths, API, folder map                         |
 | [COACH_AND_INTELLIGENCE.md](COACH_AND_INTELLIGENCE.md)                           | Product + eng      | Athlete model vs conversational Coach                       |
+| [ui-overhaul/README.md](ui-overhaul/README.md)                                   | Product + eng      | Approved UI overhaul contract and Claude Code handoff       |
 | [internal/DIFFERENTIATION_NORTH_STAR.md](internal/DIFFERENTIATION_NORTH_STAR.md) | Strategy           | Moat features, reasoning primitives                         |
 | [internal/MCP_AND_CHAT_PLAN.md](internal/MCP_AND_CHAT_PLAN.md)                   | Eng (historical)   | Early MCP/chat design notes                                 |
 | [internal/ROADMAP_10_FEATURES.md](internal/ROADMAP_10_FEATURES.md)               | Product            | Feature backlog framing                                     |
