@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   buildActiveObservations,
   buildRisksAndOpportunities,
@@ -159,11 +159,36 @@ describe("readiness claims respect training currency", () => {
     expect(all).not.toMatch(/freshness supports quality work/i);
   });
 
-  it("still green-lights quality for a rested athlete who is training", () => {
-    const analytics = withGoal(0);
-    expect(analytics.fatigue.freshness).toBeGreaterThanOrEqual(70);
-    const all = textOf(buildActiveObservations(analytics, []));
-    expect(all).toMatch(/freshness supports quality work/i);
+  /**
+   * Rested means a day more than the block's every-other-day rhythm: last run three
+   * days ago, still `current`. With the last run two days ago this fixture sat on the
+   * threshold, and freshness moves with the weekday because runs fall into Monday-start
+   * load buckets differently — measured 69–74 across one week on identical training,
+   * so the test failed every Saturday and passed every other day. One more rest day
+   * reads 97–99 on every weekday.
+   *
+   * Every weekday is checked explicitly so a weekday artifact fails whatever day the
+   * suite runs, rather than one day in seven.
+   */
+  it("still green-lights quality for a rested athlete who is training, on any weekday", () => {
+    const start = Date.now();
+    // test/time-travel.ts may already have faked Date; reuse it rather than undo it.
+    const alreadyFaked = vi.isFakeTimers();
+    if (!alreadyFaked) vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      for (let day = 0; day < 7; day++) {
+        vi.setSystemTime(start + day * 86_400_000);
+        const weekday = new Date().toDateString().slice(0, 3);
+        const analytics = withGoal(1);
+        expect(analytics.fatigue.readiness.currency, weekday).toBe("current");
+        expect(analytics.fatigue.freshness, weekday).toBeGreaterThanOrEqual(70);
+        const all = textOf(buildActiveObservations(analytics, []));
+        expect(all, weekday).toMatch(/freshness supports quality work/i);
+      }
+    } finally {
+      if (alreadyFaked) vi.setSystemTime(start);
+      else vi.useRealTimers();
+    }
   });
 
   it("leads with the gap so the numbers below are read in context", () => {

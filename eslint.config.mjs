@@ -44,6 +44,8 @@ const eslintConfig = defineConfig([
     "**/coverage/**",
     // Harness-managed state and scratch worktrees, never our sources.
     ".claude/**",
+    // The Python backend's virtualenv can ship vendored JS.
+    "**/.venv/**",
   ]),
 ]);
 

@@ -2,7 +2,7 @@
   "name": "strideiq",
   "version": "0.1.0",
   "private": true,
-  "description": "Private training intelligence for runners \u2014 import Strava data, get evidence-backed insights, and investigate your training with a tool-grounded Coach. Try it with zero setup via the built-in demo athlete.",
+  "description": "Private training intelligence for runners — import Strava data, get evidence-backed insights, and investigate your training with a tool-grounded Coach. Try it with zero setup via the built-in demo athlete.",
   "license": "MIT",
   "author": "Padraig O'Brien (https://github.com/Padraigobrien08)",
   "repository": {
@@ -44,7 +44,14 @@
     "check": "tsc --noEmit && prettier --check . && eslint && vitest run",
     "setup": "node scripts/setup.mjs",
     "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs",
-    "db:reset": "node --env-file-if-exists=.env.local scripts/migrate.mjs --reset"
+    "db:reset": "node --env-file-if-exists=.env.local scripts/migrate.mjs --reset",
+    "api:generate": "node scripts/api-contract.mjs generate",
+    "api:check": "node scripts/api-contract.mjs check",
+    "backend:dev": "uv run --directory backend uvicorn --factory app.main:create_app --host 127.0.0.1 --port 8000 --reload --no-access-log",
+    "backend:test": "uv run --directory backend pytest",
+    "backend:lint": "uv run --directory backend ruff check . && uv run --directory backend ruff format --check .",
+    "backend:typecheck": "uv run --directory backend mypy",
+    "backend:check": "npm run backend:lint && npm run backend:typecheck && npm run backend:test"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -104,6 +111,7 @@
     "eslint-config-prettier": "^10.1.8",
     "fake-indexeddb": "^6.2.5",
     "jsdom": "^29.1.1",
+    "openapi-typescript": "^7.13.0",
     "prettier": "^3.9.6",
     "shadcn": "^4.16.2",
     "tailwindcss": "^4",

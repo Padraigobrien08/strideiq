@@ -412,6 +412,9 @@ lib/
 hooks/                    # Data hooks for pages
 db/migrations/            # Postgres schema
 packages/strideiq-mcp/    # MCP server
+backend/                  # FastAPI service (migration in progress; see backend/README.md)
+contracts/openapi.json    # Generated backend API contract
+lib/api-client/           # Generated TS types + BFF adapter for the backend
 docs/                     # Architecture, deploy, smoke tests
 ```
 
@@ -419,16 +422,20 @@ docs/                     # Architecture, deploy, smoke tests
 
 ### Scripts
 
-| Command               | Description                                                |
-| --------------------- | ---------------------------------------------------------- |
-| `npm run dev`         | Development server                                         |
-| `npm run dev:lan`     | Dev server on your LAN (reachable from other devices)      |
-| `npm run lan`         | Print the LAN URL + Strava callback hint for device access |
-| `npm run build`       | Production build                                           |
-| `npm run start`       | Start production server                                    |
-| `npm test`            | Vitest test suite                                          |
-| `npm run check`       | Typecheck + lint + tests (CI gate)                         |
-| `./scripts/verify.sh` | Test + build gate                                          |
+| Command                 | Description                                                |
+| ----------------------- | ---------------------------------------------------------- |
+| `npm run dev`           | Development server                                         |
+| `npm run dev:lan`       | Dev server on your LAN (reachable from other devices)      |
+| `npm run lan`           | Print the LAN URL + Strava callback hint for device access |
+| `npm run build`         | Production build                                           |
+| `npm run start`         | Start production server                                    |
+| `npm test`              | Vitest test suite                                          |
+| `npm run check`         | Typecheck + lint + tests (CI gate)                         |
+| `./scripts/verify.sh`   | Test + build gate                                          |
+| `npm run backend:dev`   | FastAPI backend on `127.0.0.1:8000` (needs `uv`)           |
+| `npm run backend:check` | Backend lint + typecheck + tests                           |
+| `npm run api:generate`  | Regenerate OpenAPI + TS client from the backend            |
+| `npm run api:check`     | Fail if the generated API contract is stale                |
 
 ### FIT import note
 
@@ -454,6 +461,7 @@ Enable from **Settings** after OAuth is connected. Refresh the app after webhook
 | [docs/FEATURES.md](docs/FEATURES.md)                                                       | Complete feature catalog                |
 | [docs/LIMITATIONS.md](docs/LIMITATIONS.md)                                                 | What is validated, and what is not      |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)                                               | Layers, data flow, API                  |
+| [backend/README.md](backend/README.md)                                                     | Python backend setup and conventions    |
 | [docs/COACH_AND_INTELLIGENCE.md](docs/COACH_AND_INTELLIGENCE.md)                           | Intelligence vs Coach                   |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)                                                   | Vercel + Neon + Strava production setup |
 | [docs/SMOKE_TEST.md](docs/SMOKE_TEST.md)                                                   | Manual release checklist                |

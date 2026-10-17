@@ -105,6 +105,29 @@ See [COACH_AND_INTELLIGENCE.md](COACH_AND_INTELLIGENCE.md).
 | POST            | `/api/chat`                  | session             | Coach LLM + tool loop            |
 | GET/POST        | `/api/webhooks/strava`       | Strava verify token | Push events                      |
 | GET             | `/api/health`                | —                   | Health check                     |
+| GET             | `/api/backend/health`        | —                   | BFF → FastAPI connectivity probe |
+
+## Python backend (migration in progress)
+
+A FastAPI service in `backend/` is taking over backend capabilities milestone by milestone
+([migration plan](ui-overhaul/ARCHITECTURE-MIGRATION.md)). **Milestone A** — foundation
+only — is in place; every capability above still runs in TypeScript.
+
+```
+Browser ──same-origin──▶ Next route (BFF) ──lib/api-client──▶ FastAPI /api/v1/*
+```
+
+- **Contract:** Pydantic schemas (`backend/app/schemas`) → `contracts/openapi.json` →
+  generated types in `lib/api-client/generated/backend.ts` (`npm run api:generate`; CI runs
+  `npm run api:check` for drift). Never edit generated files.
+- **BFF adapter:** `lib/api-client/backend.ts` (typed fetch, per-class timeouts,
+  `x-request-id`, never forwards cookies) and `lib/api-client/bff.ts` (error envelope
+  `{ error, code, correlation_id }`).
+- **Service auth:** [ADR 0001](adr/0001-service-to-service-auth.md). Until it is
+  implemented the BFF only calls a loopback backend and the backend refuses to start as
+  `preview`/`production`.
+- Setup, commands and conventions: [backend/README.md](../backend/README.md). Milestone
+  record: [ui-overhaul/MILESTONE-A.md](ui-overhaul/MILESTONE-A.md).
 
 ## Intelligence tools (deterministic)
 
@@ -140,8 +163,10 @@ Coach preferences, the training calendar, the recommendation log, and athlete me
 ## Testing
 
 ```bash
-npm test      # vitest — parsers, analytics, reasoning units
-npm run build # production typecheck + compile
+npm test              # vitest — parsers, analytics, reasoning units
+npm run build         # production typecheck + compile
+npm run backend:check # ruff + mypy + pytest for backend/ (needs uv)
+npm run api:check     # generated API contract is up to date (needs uv)
 ```
 
 ## Related packages

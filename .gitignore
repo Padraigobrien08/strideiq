@@ -43,6 +43,14 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Python backend (backend/)
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
 # Strava exports (PII — never commit)
 export_*/
 **/export_*/

@@ -10,6 +10,10 @@ next-env.d.ts
 node_modules/
 package-lock.json
 
+# Generated API contract — byte-for-byte generator output, verified by `npm run api:check`
+contracts/openapi.json
+lib/api-client/generated/
+
 # Data (PII) and assets
 export_*/
 public/

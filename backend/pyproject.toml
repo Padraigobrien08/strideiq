@@ -1,0 +1,40 @@
+[project]
+name = "strideiq-backend"
+version = "0.1.0"
+description = "StrideIQ backend service (FastAPI). Reached only through the Next.js BFF."
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.143.3",
+    "pydantic-settings>=2.16.0",
+    "uvicorn>=0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.13.1",
+    "mypy>=2.4.0",
+    "pytest>=9.1.1",
+    "ruff>=0.17.1",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# E/F: pyflakes + pycodestyle, I: import order, B: bugbear, UP: pyupgrade,
+# S: bandit-style security checks (assert is allowed in tests below).
+select = ["E", "F", "I", "B", "UP", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+files = ["app", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
