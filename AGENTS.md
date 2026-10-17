@@ -40,6 +40,7 @@ lib/intelligence/tools.ts            # Tool registry
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — layers, APIs, migrations
 - [docs/COACH_AND_INTELLIGENCE.md](docs/COACH_AND_INTELLIGENCE.md) — two surfaces
 - [PRODUCT.md](PRODUCT.md) — product contract
+- [backend/README.md](backend/README.md) — FastAPI backend (migration in progress)
 
 ## Commands
 
@@ -47,7 +48,12 @@ lib/intelligence/tools.ts            # Tool registry
 npm run dev
 npm test
 npm run build
+npm run backend:check   # backend/ (FastAPI) — needs uv
+npm run api:check       # generated contract up to date; regenerate with api:generate
 ```
+
+Generated files (`contracts/openapi.json`, `lib/api-client/generated/`) are never edited
+by hand — change the Pydantic schema and run `npm run api:generate`.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

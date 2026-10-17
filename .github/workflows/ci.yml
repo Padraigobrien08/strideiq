@@ -93,6 +93,29 @@ jobs:
         env:
           TEST_DATABASE_URL: ${{ env.TEST_DB_URL }}
 
+  # The FastAPI service (backend/) and the contract between it and the Next app. Its own
+  # job so a Python failure reads as one, and so it adds checks without touching the
+  # existing jobs. Node is here only for `api:check`, which regenerates the TypeScript
+  # client from the backend's OpenAPI and fails if the committed copy is stale.
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          version: "0.10.2"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # --locked: fail if backend/uv.lock is out of date rather than re-resolving.
+      - run: uv sync --locked --directory backend
+      - run: npm run backend:check
+      - run: npm run api:check
+
   # Runs the suite as if it were a year from now. Three suites have turned `main` red
   # purely because time passed, each found only when it broke; this catches the next
   # one at authoring time instead. Cheap: same suite, one env var.

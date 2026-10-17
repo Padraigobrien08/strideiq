@@ -12,6 +12,7 @@ This folder is the approved product and implementation contract for the StrideIQ
 6. [`ACCEPTANCE-TESTS.md`](./ACCEPTANCE-TESTS.md)
 7. [`CLAUDE-HANDOFF.md`](./CLAUDE-HANDOFF.md)
 8. [`CLAUDE-ARCHITECTURE-PROMPT.md`](./CLAUDE-ARCHITECTURE-PROMPT.md)
+9. [`MILESTONE-A.md`](./MILESTONE-A.md) — record of the backend foundation milestone
 
 The mockups under [`mockups/`](./mockups/) are approved references for hierarchy, composition and visual tone. They are not literal screenshots to reproduce blindly. Real content, responsive behavior, accessibility and existing application contracts take precedence over incidental image details.
 

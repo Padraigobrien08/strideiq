@@ -143,6 +143,8 @@ Every migrated capability requires golden TypeScript outputs before Python imple
 
 ### Milestone A — Python foundation, no production traffic
 
+**Status:** implemented — see [MILESTONE-A.md](./MILESTONE-A.md).
+
 - Add `backend/` FastAPI application, configuration and health endpoint.
 - Add Python lint, typing and pytest configuration.
 - Add OpenAPI export and generated TypeScript client.
