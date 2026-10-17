@@ -29,7 +29,7 @@ export const GLOSSARY = {
   tsb: {
     label: "TSB",
     definition:
-      "Training Stress Balance (freshness): recent fatigue subtracted from built-up fitness. Positive means fresh, negative means tired.",
+      "Training Stress Balance: built-up fitness (chronic load) minus recent fatigue (acute load). StrideIQ reads it as a share of your chronic load, so the same balance means the same thing at any training volume.",
   },
   cs: {
     label: "Critical speed",
@@ -51,14 +51,14 @@ export const GLOSSARY = {
     definition: "Month over month: the change compared with the previous month.",
   },
   freshness: {
-    label: "Freshness",
+    label: "Training load balance",
     definition:
-      "How rested your legs are right now: built-up fitness minus recent fatigue. Positive means fresh, negative means tired.",
+      "How your recent training load compares with what you are used to: recent load against built-up load, as a share of the built-up load. Higher means you have absorbed your training; lower means recent load is heavy. It needs about four weeks of runs before it counts, and it only changes today's session when it matters.",
   },
   readiness: {
     label: "Readiness",
     definition:
-      "A 0 to 100 estimate of how prepared you are to perform, blending fitness, freshness, and recent training.",
+      "A 0 to 100 estimate of how prepared you are to perform, blending fitness, training load balance, and recent training.",
   },
   load: {
     label: "Training load",

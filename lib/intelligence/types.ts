@@ -1,4 +1,5 @@
 import type { DashboardInsights } from "@/lib/analytics";
+import type { TrainingLoadBalancePayload } from "./loadBalancePayload";
 import type { Insight } from "@/lib/insights/types";
 import type { ImportQualityReport } from "@/lib/quality/assessImport";
 import type { RaceGoal } from "@/lib/analytics/readiness";
@@ -73,9 +74,11 @@ export interface IntelligenceBrief {
     largestRisk: string | null;
   };
   fatigue: {
-    freshness: number;
+    /** Null when there is not enough load history; quote `trainingLoadBalance` instead. */
+    freshness: number | null;
     label: string;
-    tsb: number;
+    tsb: number | null;
+    trainingLoadBalance: TrainingLoadBalancePayload;
   };
   weekPlan: {
     weekLabel: string;

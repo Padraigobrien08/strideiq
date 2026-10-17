@@ -1,5 +1,6 @@
 import type { AthleteArchetype } from "@/lib/ecosystem/types";
 import type { LegFeel } from "@/lib/wellness/types";
+import type { TrainingLoadBalancePayload } from "@/lib/intelligence/loadBalancePayload";
 
 export type ConfidenceLevel = "low" | "medium" | "high";
 
@@ -98,7 +99,10 @@ export interface CoachingGoalContext {
 
 export interface CoachingCurrentState {
   readiness?: number;
+  /** Absent when there is not enough load history (see `trainingLoadBalance`). */
   freshness?: number;
+  /** The load reading the app's decisions use; the one the planning LLM should quote. */
+  trainingLoadBalance: TrainingLoadBalancePayload;
   /** Athlete's reported leg-feel for the day, if any. */
   reportedLegFeel?: LegFeel;
   fatigueState: FatigueStateLabel;

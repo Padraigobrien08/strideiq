@@ -1,6 +1,7 @@
 import type { DashboardInsights } from "@/lib/analytics";
 import { RACE_READINESS_CONFIG } from "@/lib/analytics/readiness";
 import { buildActiveObservations, deriveCurrentFocus } from "@/lib/coach/activeIntelligence";
+import { trainingLoadBalancePayload } from "@/lib/intelligence/loadBalancePayload";
 import type {
   CoachingCurrentState,
   DurabilityLabel,
@@ -89,6 +90,7 @@ export function buildAthleteStateSummary(insights: DashboardInsights): CoachingC
   return {
     readiness: readiness != null ? Math.round(readiness) : undefined,
     freshness: loadKnown ? Math.round(freshness) : undefined,
+    trainingLoadBalance: trainingLoadBalancePayload(insights.fatigue),
     reportedLegFeel,
     fatigueState,
     durability,

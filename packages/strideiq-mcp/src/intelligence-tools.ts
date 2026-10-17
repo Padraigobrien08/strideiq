@@ -49,7 +49,7 @@ export const INTELLIGENCE_TOOLS: readonly IntelligenceToolSpec[] = [
   {
     name: "recommend_today_session",
     description:
-      "Recommend a single session for today (rest, recovery, easy, long, tempo, or interval) from current fatigue, recent intensity balance, time since the last quality/long run, and race proximity. Use for 'what should I run today?'.",
+      "Recommend a single session for today (rest, recovery, easy, long, tempo, or interval) from the training load balance (when there is enough history), recent intensity balance, time since the last quality/long run, and race proximity. Use for 'what should I run today?'.",
     args: {},
   },
   {
@@ -67,7 +67,7 @@ export const INTELLIGENCE_TOOLS: readonly IntelligenceToolSpec[] = [
   {
     name: "get_pre_race_narrative",
     description:
-      "A pre-race lead-in summary (only within ~3 weeks of a race goal): readiness, taper/freshness status, projected finish, top limiter, and a one-line game plan. Use for 'how's my race prep?', 'am I ready for race day?'.",
+      "A pre-race lead-in summary (only within ~3 weeks of a race goal): readiness, taper and training load balance, projected finish, top limiter, and a one-line game plan. Use for 'how's my race prep?', 'am I ready for race day?'.",
     args: {},
   },
   {
@@ -85,7 +85,7 @@ export const INTELLIGENCE_TOOLS: readonly IntelligenceToolSpec[] = [
   {
     name: "explain_prediction",
     description:
-      "Explain WHY the race prediction is what it is: the step-by-step derivation from raw capability through durability, specificity, and freshness/taper adjustments to the most-likely time; each capability model's estimate and weight; what widens the prediction range; and which training levers (long run, volume, quality, freshness) would move the time most. Use for 'why do you think I'll run that?', 'how did you get that time?', or 'what would make me faster?'.",
+      "Explain WHY the race prediction is what it is: the step-by-step derivation from raw capability through durability, specificity, and training-load-balance/taper adjustments to the most-likely time; each capability model's estimate and weight; what widens the prediction range; and which training levers (long run, volume, quality, load balance) would move the time most. Use for 'why do you think I'll run that?', 'how did you get that time?', or 'what would make me faster?'.",
     args: {},
   },
   {
@@ -158,7 +158,8 @@ export const INTELLIGENCE_TOOLS: readonly IntelligenceToolSpec[] = [
   },
   {
     name: "get_fatigue_load",
-    description: "Freshness, TSB, CTL/ATL, and load interpretation.",
+    description:
+      "Training load balance: form (TSB as a % of chronic load), its evidence status and confidence, whether it changed today's session, plus CTL/ATL and load interpretation. Quote trainingLoadBalance; freshness and TSB are null when there is not enough history.",
     args: {},
   },
   {
