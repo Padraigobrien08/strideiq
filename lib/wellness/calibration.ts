@@ -39,7 +39,7 @@ export interface FeelHistoryPoint {
 
 /** Minimal weekly-load shape (matches acuteChronicLoad history points). */
 export interface WeeklyLoadLite {
-  weekStart: string; // yyyy-MM-dd (Monday)
+  weekStart: string; // yyyy-MM-dd, first day of a seven-day window
   ctl: number;
   atl: number;
 }

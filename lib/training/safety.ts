@@ -15,7 +15,12 @@ export function countHardSessions(plan: WeekPlan): number {
   return plan.sessions.filter((s) => HARD_TYPES.includes(s.type)).length;
 }
 
-export function validatePlan(plan: WeekPlan, lastWeekKm: number, tsb: number): SafetyAdjustments {
+export function validatePlan(
+  plan: WeekPlan,
+  lastWeekKm: number,
+  /** Form: TSB as a percentage of CTL (`FatigueSnapshot.formPct`). */
+  formPct: number,
+): SafetyAdjustments {
   const warnings = [...plan.warnings];
   let sessions = [...plan.sessions];
   let totalKmRange: [number, number] = [...plan.totalKmRange];
@@ -38,7 +43,7 @@ export function validatePlan(plan: WeekPlan, lastWeekKm: number, tsb: number): S
   }
 
   const hardCount = countHardSessions({ ...plan, sessions });
-  if (tsb < -15 && hardCount > 2) {
+  if (formPct < -21 && hardCount > 2) {
     let removed = 0;
     sessions = sessions.map((s) => {
       if (removed < hardCount - 2 && HARD_TYPES.includes(s.type)) {

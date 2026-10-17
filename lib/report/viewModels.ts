@@ -203,7 +203,7 @@ function synthesizeSignals(
       significance: `${analytics.fatigue.label} · TSB ${analytics.fatigue.tsb > 0 ? "+" : ""}${analytics.fatigue.tsb}`,
       tone: "positive",
     });
-  } else if (analytics.fatigue.tsb < -12) {
+  } else if (analytics.fatigue.formPct < -17) {
     signals.push({
       text: "Recovery distribution slightly insufficient.",
       significance: "Acute load exceeds recovery: prioritize sleep and easy volume.",
@@ -251,7 +251,7 @@ function buildExecutive(
       ? "Get back to consistent easy running before anything else."
       : analytics.intensityAdvice.status === "too_hard"
         ? "Reduce intensity density slightly before race week."
-        : analytics.fatigue.tsb < -10
+        : analytics.fatigue.formPct < -15
           ? "Prioritize recovery before adding race-specific sharpness."
           : "Add one race-pace touchpoint while holding easy volume.");
 

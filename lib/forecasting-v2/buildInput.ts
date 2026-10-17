@@ -93,6 +93,7 @@ export function buildRaceForecastInput(opts: {
       readinessScore: analytics.raceReadiness?.score,
       freshnessScore: analytics.fatigue.freshness,
       tsb: analytics.fatigue.tsb,
+      formPct: analytics.fatigue.formPct,
       ctl: analytics.fatigue.ctl,
       atl: analytics.fatigue.atl,
       hardRunsLast14d: analytics.intensityAdvice.hardRunsLast14d,

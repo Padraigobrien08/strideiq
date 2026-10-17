@@ -8,12 +8,14 @@ function fatigue(overrides: Partial<FatigueSnapshot> = {}): FatigueSnapshot {
     ctl: 50,
     atl: 50,
     tsb: 0,
+    formPct: -2.5,
     freshness: 60,
     label: "neutral",
     readiness: { balance: "neutral", currency: "current", volumeRatio: null },
     restDaysSinceLastRun: 1,
     evidence: [],
     usesProxyLoad: false,
+    loadSource: "training_load",
     ...overrides,
   };
 }
@@ -99,7 +101,7 @@ describe("detectRiskPatterns", () => {
           [50, 66],
           [50, 68],
         ]),
-        fatigue: fatigue({ tsb: -18, freshness: 35 }),
+        fatigue: fatigue({ tsb: -18, formPct: -25, freshness: 35 }),
       }),
     );
     const streak = r.find((p) => p.id === "tsb_streak");
@@ -139,7 +141,7 @@ describe("detectRiskPatterns", () => {
           [50, 60],
           [50, 80],
         ]),
-        fatigue: fatigue({ usesProxyLoad: true }),
+        fatigue: fatigue({ usesProxyLoad: true, loadSource: "distance" }),
       }),
     );
     const acwr = r.find((p) => p.id === "acwr_spike");

@@ -24,7 +24,7 @@ export function buildConstraints(
   if (insights.intensityAdvice.status === "too_hard") {
     notes.push("Cap hard sessions; easy aerobic volume should lead the week.");
   }
-  if (insights.fatigue.tsb < -12) {
+  if (insights.fatigue.formPct < -17) {
     notes.push("Negative TSB: avoid stacking quality days back-to-back.");
   }
 

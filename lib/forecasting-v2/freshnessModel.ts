@@ -10,6 +10,9 @@ export function assessFreshness(input: RaceForecastInput): FreshnessAssessment {
 
   const freshness = ctx.freshnessScore ?? 50;
   const tsb = ctx.tsb ?? 0;
+  // Thresholds read form (TSB as % of CTL). Inputs that carry only raw TSB (older
+  // callers, evaluation fixtures) go through the same mapping the snapshot uses.
+  const formPct = ctx.formPct ?? 1.25 * tsb - 2.5;
   const hard14 = ctx.hardRunsLast14d ?? 0;
 
   // Currency comes from the shared readiness model. Without it this model read a
@@ -51,16 +54,17 @@ export function assessFreshness(input: RaceForecastInput): FreshnessAssessment {
     evidence.push(`Freshness ${Math.round(freshness)}: neutral race-day modifier.`);
   }
 
-  if (tsb > 8) {
+  if (formPct > 8) {
     evidence.push(`TSB +${Math.round(tsb)}: training balance favors recovery.`);
     // Currency answers taper-vs-detraining directly, so only guess from TSB when
     // the caller could not tell us.
-    if (tsb > 20 && currency === undefined) {
+    if (formPct > 23 && currency === undefined) {
       risks.push("Very positive TSB after sharp volume drop: confirm taper vs detraining.");
     }
-  } else if (tsb < -12) {
+  } else if (formPct < -17) {
     evidence.push(`TSB ${Math.round(tsb)}: acute load may outweigh freshness.`);
-    timeAdjustmentSec += Math.round(Math.min(90, Math.abs(tsb) * 2));
+    // Two seconds per legacy-TSB point, as before, read through the mapping.
+    timeAdjustmentSec += Math.round(Math.min(90, Math.abs((formPct + 2.5) / 1.25) * 2));
     risks.push("Fatigue balance strained: late-race fade risk elevated.");
   }
 

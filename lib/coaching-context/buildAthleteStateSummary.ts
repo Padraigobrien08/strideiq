@@ -9,9 +9,9 @@ import type {
   SpecificityLabel,
 } from "./types";
 
-function mapFatigueState(freshness: number, tsb: number): FatigueStateLabel {
-  if (freshness >= 65 && tsb > -5) return "fresh";
-  if (freshness < 45 || tsb < -15) return "fatigued";
+function mapFatigueState(freshness: number, formPct: number): FatigueStateLabel {
+  if (freshness >= 65 && formPct > -9) return "fresh";
+  if (freshness < 45 || formPct < -21) return "fatigued";
   if (freshness >= 45 && freshness < 65) return "neutral";
   return "unknown";
 }
@@ -64,7 +64,7 @@ export function buildAthleteStateSummary(insights: DashboardInsights): CoachingC
   const freshness = insights.fatigue.freshness;
   const readiness = insights.raceReadiness?.score;
 
-  const fatigueState = mapFatigueState(freshness, insights.fatigue.tsb);
+  const fatigueState = mapFatigueState(freshness, insights.fatigue.formPct);
   const durability = mapDurability(insights);
   const specificity = mapSpecificity(insights);
   const intensityBalance = mapIntensityBalance(insights);

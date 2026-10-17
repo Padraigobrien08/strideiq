@@ -6,7 +6,7 @@ export function inferFatigueResponses(analytics: DashboardInsights): AdaptationS
   const out: AdaptationSignal[] = [];
   const trainingCurrent = isTrainingCurrent(analytics.fatigue);
 
-  if (analytics.fatigue.tsb < -15) {
+  if (analytics.fatigue.formPct < -21) {
     out.push({
       id: "fatigue-deep-negative-tsb",
       category: "freshness",

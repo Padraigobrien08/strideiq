@@ -47,12 +47,12 @@ export function inferAdaptationSignals(
           ...(analytics.efficiencyMoM.narrative ? [analytics.efficiencyMoM.narrative] : []),
         ],
         contradictoryEvidence:
-          analytics.fatigue.tsb < -12 ? ["TSB negative: load may mask adaptation"] : [],
+          analytics.fatigue.formPct < -17 ? ["TSB negative: load may mask adaptation"] : [],
       }),
     );
   }
 
-  if (analytics.intensityAdvice.status === "too_hard" || analytics.fatigue.tsb < -10) {
+  if (analytics.intensityAdvice.status === "too_hard" || analytics.fatigue.formPct < -15) {
     out.push(
       signal({
         category: "freshness",

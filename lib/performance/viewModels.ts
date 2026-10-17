@@ -140,7 +140,7 @@ function trajectoryScore(analytics: DashboardInsights): {
   else if (pace.length >= 2 && pace.at(-1)! > pace.at(-2)! * 1.02) score -= 8;
 
   if (analytics.consistencyScore.overall >= 70) score += 10;
-  if (analytics.fatigue.tsb < -20) score -= 10;
+  if (analytics.fatigue.formPct < -27) score -= 10;
 
   score = Math.max(0, Math.min(100, Math.round(score)));
   const label =
@@ -364,7 +364,7 @@ function buildProjectionView(analytics: DashboardInsights): RaceProjectionView {
   if (primary) {
     const pace = primary.timeSec / primary.distanceKm;
     pacingNote = `Even-effort pacing ~${formatPace(pace)} avg. Adjust for course and conditions.`;
-    if (primary.distanceKm >= 20 && analytics.fatigue.tsb < -15) {
+    if (primary.distanceKm >= 20 && analytics.fatigue.formPct < -21) {
       fadeRisk = "Elevated fatigue may increase late-race fade risk vs projection.";
     } else if (primary.distanceKm >= 20) {
       fadeRisk =

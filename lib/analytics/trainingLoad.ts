@@ -1,5 +1,6 @@
 import type { RunActivity } from "@/lib/strava/types";
 import { parseISO, format, startOfWeek } from "date-fns";
+import { resolveLoadModel } from "./loadModel";
 
 export interface LoadPoint {
   date: string;
@@ -14,14 +15,18 @@ export interface FitnessIndexPoint {
   ctl: number;
 }
 
-/** Simple CTL-style EMA on weekly sum of training load */
+/**
+ * Simple CTL-style EMA on weekly sum of load. Per-run load follows the same one-source
+ * rule as `weeklyLoadSeries` (`lib/analytics/loadModel.ts`); it used to read raw Training
+ * Load and skip every run without it, so an API-synced athlete had no index at all.
+ */
 export function fitnessIndex(runs: RunActivity[], tauWeeks = 6): FitnessIndexPoint[] {
+  const { loadOf } = resolveLoadModel(runs);
   const weekly = new Map<string, number>();
   for (const run of runs) {
-    if (run.trainingLoad === null) continue;
     const d = parseISO(run.date);
     const key = format(startOfWeek(d, { weekStartsOn: 1 }), "yyyy-MM-dd");
-    weekly.set(key, (weekly.get(key) ?? 0) + run.trainingLoad);
+    weekly.set(key, (weekly.get(key) ?? 0) + loadOf(run));
   }
 
   const sorted = [...weekly.entries()].sort((a, b) => a[0].localeCompare(b[0]));

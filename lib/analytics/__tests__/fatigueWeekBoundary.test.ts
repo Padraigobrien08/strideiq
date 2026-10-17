@@ -53,7 +53,7 @@ function runOn(date: Date, load: number): RunActivity {
  *
  * Long enough (~40 weeks) that CTL has converged. At ten weeks it is still warming up
  * against its six-week time constant, so it climbs every week — real behaviour, but it
- * drifts across the discontinuity in `freshnessFromTsb` at tsb = -10, where an 0.1
+ * drifts across the discontinuity in `freshnessFromForm` at form −15 %, where a small
  * change in balance moves freshness by eleven points. That is a separate wart; this
  * file is about the week boundary, so the fixture removes the warm-up rather than
  * asserting around it.

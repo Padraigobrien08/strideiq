@@ -28,12 +28,14 @@ function baseContext(overrides: Partial<PlanContext> = {}): PlanContext {
     ctl: 80,
     atl: 90,
     tsb: -10,
+    formPct: -15,
     freshness: 55,
     label: "Neutral",
     readiness: { balance: "neutral", currency: "current", volumeRatio: null },
     restDaysSinceLastRun: 1,
     evidence: [],
     usesProxyLoad: false,
+    loadSource: "training_load",
   };
   const intensityAdvice: IntensityAdvice = {
     status: "balanced",

@@ -33,6 +33,8 @@ export type RaceForecastInput = {
     readinessScore?: number;
     freshnessScore?: number;
     tsb?: number;
+    /** TSB as a percentage of CTL. Preferred over `tsb` for every threshold. */
+    formPct?: number;
     ctl?: number;
     atl?: number;
     hardRunsLast14d?: number;

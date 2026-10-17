@@ -454,11 +454,11 @@ export function buildInsightRows(
   const adv = analytics.intensityAdvice;
   const conf = analytics.dataConfidence;
 
-  if (adv.status === "too_hard" || analytics.fatigue.tsb < -15) {
+  if (adv.status === "too_hard" || analytics.fatigue.formPct < -21) {
     rows.push({
       id: "intensity",
       kind: "risk",
-      severity: analytics.fatigue.tsb < -25 ? "risk" : "caution",
+      severity: analytics.fatigue.formPct < -34 ? "risk" : "caution",
       confidence: conf,
       title: "High intensity ratio",
       summary: `${adv.hardRunsLast14d} hard sessions in 14 days · ${Math.round(adv.currentEasyPct)}% easy (target ~${adv.easyTargetPct}%)`,

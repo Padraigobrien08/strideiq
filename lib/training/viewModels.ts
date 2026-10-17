@@ -153,7 +153,7 @@ function classifyState(
       severity: "warning",
     };
   }
-  if (balance === "fatigued" || fatigue.tsb < -20) {
+  if (balance === "fatigued" || fatigue.formPct < -27) {
     return { classification: "Load accumulation", severity: "warning" };
   }
   if (adv.status === "too_hard") {
@@ -250,13 +250,13 @@ function loadStateChips(
   // A stale athlete must not be chipped "Fresh" on load balance alone.
   if (balance === "fresh" && current) chips.push("Fresh");
   if (balance === "neutral") chips.push("Neutral");
-  if (fatigue.tsb < -12) chips.push("Accumulating fatigue");
+  if (fatigue.formPct < -17) chips.push("Accumulating fatigue");
   if (history.length >= 3) {
     const prev = history.at(-2);
     const cur = history.at(-1);
     if (prev && cur && cur.atl < prev.atl) chips.push("Recovery trend");
   }
-  if (fatigue.tsb >= -15 && fatigue.tsb <= 5 && fatigue.ctl > 20) {
+  if (fatigue.formPct >= -21 && fatigue.formPct <= 4 && fatigue.ctl > 20) {
     chips.push("High adaptation window");
   }
   return [...new Set(chips)];
@@ -269,13 +269,13 @@ function loadInterpretation(fatigue: FatigueSnapshot): string {
   if (currency === "rusty" || currency === "detrained" || currency === "returning") {
     return `Your balance looks positive only because training stopped: ${fatigue.restDaysSinceLastRun} days since the last run. Rebuild easy volume before any quality work.`;
   }
-  if (balance === "fresh" && fatigue.tsb > 8) {
+  if (balance === "fresh" && fatigue.formPct > 8) {
     return "You have positive training balance. Quality sessions are well supported if feel matches the data.";
   }
   if (balance === "fatigued") {
     return "Acute load is outpacing recovery. Prioritize easy volume and sleep before adding intensity.";
   }
-  if (fatigue.tsb < -10) {
+  if (fatigue.formPct < -15) {
     return "Fatigue is accumulating; keep hard sessions spaced and watch for declining efficiency.";
   }
   return "Load is in a neutral band. Steady progression is appropriate with one quality touchpoint.";
