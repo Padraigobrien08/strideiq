@@ -7,9 +7,11 @@ This folder is the approved product and implementation contract for the StrideIQ
 1. Repository-root `AGENTS.md`
 2. [`SPEC.md`](./SPEC.md)
 3. [`DECISIONS.md`](./DECISIONS.md)
-4. [`IMPLEMENTATION-PLAN.md`](./IMPLEMENTATION-PLAN.md)
-5. [`ACCEPTANCE-TESTS.md`](./ACCEPTANCE-TESTS.md)
-6. [`CLAUDE-HANDOFF.md`](./CLAUDE-HANDOFF.md)
+4. [`ARCHITECTURE-MIGRATION.md`](./ARCHITECTURE-MIGRATION.md)
+5. [`IMPLEMENTATION-PLAN.md`](./IMPLEMENTATION-PLAN.md)
+6. [`ACCEPTANCE-TESTS.md`](./ACCEPTANCE-TESTS.md)
+7. [`CLAUDE-HANDOFF.md`](./CLAUDE-HANDOFF.md)
+8. [`CLAUDE-ARCHITECTURE-PROMPT.md`](./CLAUDE-ARCHITECTURE-PROMPT.md)
 
 The mockups under [`mockups/`](./mockups/) are approved references for hierarchy, composition and visual tone. They are not literal screenshots to reproduce blindly. Real content, responsive behavior, accessibility and existing application contracts take precedence over incidental image details.
 
@@ -33,3 +35,6 @@ Do not merge the Intelligence data model into Coach. The new **Progress** surfac
 - Computed analytics remain separate from LLM explanation
 - Conversation can propose but cannot silently mutate a plan
 - Every plan mutation requires structured review and explicit approval
+- Next.js remains the React frontend; FastAPI becomes the backend through a thin BFF
+- API types and the TypeScript client are generated from FastAPI OpenAPI
+- Backend extraction proceeds milestone by milestone with parity gates

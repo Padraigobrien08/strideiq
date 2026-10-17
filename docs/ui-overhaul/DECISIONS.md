@@ -82,3 +82,13 @@ These decisions were established through product questioning and approved visual
 - Coach failures cannot affect confirmed plans or analytics.
 - Preserve the viewport-locked Coach layout rule unless the replacement has equivalent tested behavior.
 - Do not migrate the framework or styling system.
+
+## Backend architecture
+
+- Next.js remains the React frontend.
+- The browser calls same-origin Next BFF routes; it does not call FastAPI directly.
+- FastAPI becomes the owner of domain logic, analytics, persistence, integrations and AI orchestration.
+- Migration proceeds by milestones with TypeScript/Python parity gates.
+- FastAPI/Pydantic owns transport schemas and OpenAPI.
+- The TypeScript client and API types are generated and checked for drift in CI.
+- Do not dual-write or move a capability before rollback and parity behavior are defined.
