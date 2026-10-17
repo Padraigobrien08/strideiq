@@ -6,6 +6,8 @@ import type { AthleteBelief } from "./types";
 export function inferFatiguePatterns(analytics: DashboardInsights): AthleteBelief[] {
   const out: AthleteBelief[] = [];
   const { fatigue, intensityAdvice } = analytics;
+  // Beliefs persist, so none are formed from a load balance with too little history.
+  if (!fatigue.loadEvidence.sufficient) return out;
 
   if (intensityAdvice.status === "too_hard" || intensityAdvice.hardRunsLast14d >= 3) {
     out.push(

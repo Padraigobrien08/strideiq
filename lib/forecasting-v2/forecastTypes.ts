@@ -35,6 +35,8 @@ export type RaceForecastInput = {
     tsb?: number;
     /** TSB as a percentage of CTL. Preferred over `tsb` for every threshold. */
     formPct?: number;
+    /** Set when there is too little history for the load balance (see `assessLoadEvidence`). */
+    loadEvidenceInsufficient?: boolean;
     ctl?: number;
     atl?: number;
     hardRunsLast14d?: number;

@@ -50,13 +50,20 @@ export const contexts = {
   },
   missingHr: () => coachingContextFrom(lowData),
   fatigueHeavy: () => {
-    const runs = Array.from({ length: 14 }, (_, i) => mkRun(i, { distanceM: 12000, avgHr: 170 }));
+    // Four weeks of easy base before the heavy fortnight, so the load balance has the
+    // history it needs to count as evidence (see `assessLoadEvidence`).
+    const base = Array.from({ length: 10 }, (_, i) =>
+      mkRun(16 + i * 3, { distanceM: 8000, id: `base-${i}` }),
+    );
+    const heavy = Array.from({ length: 14 }, (_, i) => mkRun(i, { distanceM: 12000, avgHr: 170 }));
+    const runs = [...base, ...heavy];
     const f = insightsFrom(runs, {
       distance: "hm",
       date: format(addDays(new Date(), 30), "yyyy-MM-dd"),
     });
     f.analytics.fatigue.freshness = 38;
     f.analytics.fatigue.tsb = -22;
+    f.analytics.fatigue.formPct = -30; // -22 through form = 1.25 × tsb − 2.5
     return coachingContextFrom(f, {
       distance: "hm",
       date: format(addDays(new Date(), 30), "yyyy-MM-dd"),

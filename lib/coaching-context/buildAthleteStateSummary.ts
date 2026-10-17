@@ -64,7 +64,10 @@ export function buildAthleteStateSummary(insights: DashboardInsights): CoachingC
   const freshness = insights.fatigue.freshness;
   const readiness = insights.raceReadiness?.score;
 
-  const fatigueState = mapFatigueState(freshness, insights.fatigue.formPct);
+  // The planner's guardrails and the LLM both read this. Without load evidence they get
+  // no number and an "unknown" state, so neither can treat noise as a finding.
+  const loadKnown = insights.fatigue.loadEvidence.sufficient;
+  const fatigueState = loadKnown ? mapFatigueState(freshness, insights.fatigue.formPct) : "unknown";
   const durability = mapDurability(insights);
   const specificity = mapSpecificity(insights);
   const intensityBalance = mapIntensityBalance(insights);
@@ -72,7 +75,11 @@ export function buildAthleteStateSummary(insights: DashboardInsights): CoachingC
   const reportedLegFeel = insights.fatigue.reportedLegFeel;
 
   const parts: string[] = [];
-  parts.push(`Freshness ${Math.round(freshness)} (TSB ${insights.fatigue.tsb.toFixed(0)}).`);
+  parts.push(
+    loadKnown
+      ? `Freshness ${Math.round(freshness)} (TSB ${insights.fatigue.tsb.toFixed(0)}).`
+      : `Not enough training history yet to judge freshness (${insights.fatigue.loadEvidence.historyDays} days).`,
+  );
   if (reportedLegFeel) parts.push(`Athlete reports ${reportedLegFeel} legs today.`);
   if (readiness != null) parts.push(`Readiness signal ~${Math.round(readiness)}.`);
   parts.push(`${focus}: ${rationale}`);
@@ -81,7 +88,7 @@ export function buildAthleteStateSummary(insights: DashboardInsights): CoachingC
 
   return {
     readiness: readiness != null ? Math.round(readiness) : undefined,
-    freshness: Math.round(freshness),
+    freshness: loadKnown ? Math.round(freshness) : undefined,
     reportedLegFeel,
     fatigueState,
     durability,

@@ -425,7 +425,10 @@ function buildBasePlan(ctx: PlanContext, week: { weekStart: string; weekLabel: s
   const easy2 = Math.round(cap * 0.2 * 10) / 10;
   const quality = Math.round(cap * 0.18 * 10) / 10;
 
-  const allowQuality = ctx.fatigue.freshness >= 50 && ctx.intensityAdvice.status !== "too_hard";
+  // Without load evidence the balance does not gate quality; intensity still does.
+  const allowQuality =
+    (!ctx.fatigue.loadEvidence.sufficient || ctx.fatigue.freshness >= 50) &&
+    ctx.intensityAdvice.status !== "too_hard";
 
   const sessions: PlannedSession[] = [
     {
@@ -528,7 +531,11 @@ export function buildNextWeekPlan(ctx: PlanContext): WeekPlan {
     }
   } else if (raceDate && daysUntilRace !== null && daysUntilRace <= 14 && raceInPlanWeek) {
     plan = buildRaceWeekPlan(ctx, week, daysUntilRace, raceDate);
-  } else if (ctx.fatigue.freshness < 40 && (daysUntilRace === null || daysUntilRace > 3)) {
+  } else if (
+    ctx.fatigue.loadEvidence.sufficient &&
+    ctx.fatigue.freshness < 40 &&
+    (daysUntilRace === null || daysUntilRace > 3)
+  ) {
     plan = buildFatiguePlan(ctx, week);
   } else if (daysUntilRace !== null && daysUntilRace <= 14) {
     plan = buildTaperPlan(ctx, week, daysUntilRace);
@@ -561,7 +568,12 @@ export function buildNextWeekPlan(ctx: PlanContext): WeekPlan {
     plan = buildBasePlan(ctx, week);
   }
 
-  const { plan: safePlan } = validatePlan(plan, lastCompletedWeekKm(ctx), ctx.fatigue.formPct);
+  const { plan: safePlan } = validatePlan(
+    plan,
+    lastCompletedWeekKm(ctx),
+    // A balance with too little history behind it cannot justify cutting sessions.
+    ctx.fatigue.loadEvidence.sufficient ? ctx.fatigue.formPct : 0,
+  );
 
   return safePlan;
 }

@@ -27,6 +27,10 @@ export function assessFreshness(input: RaceForecastInput): FreshnessAssessment {
     // Fallback for inputs built before currency existed.
     (currency === undefined && restDays !== undefined && restDays >= 8);
 
+  if (ctx.loadEvidenceInsufficient) {
+    evidence.push("Not enough training history to judge race-day freshness; treated as neutral.");
+  }
+
   score = Math.round(Math.max(0, Math.min(100, freshness)));
 
   if (stale) {
