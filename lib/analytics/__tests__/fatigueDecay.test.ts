@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { acuteChronicLoad, weeklyLoadSeries } from "../fatigue";
 import type { RunActivity } from "@/lib/strava/types";
-import { format, subWeeks, startOfWeek } from "date-fns";
+import { format, subDays, subWeeks, startOfWeek } from "date-fns";
 
 /**
  * Invariants P1 of docs/proposals/readiness-model.md.
@@ -48,10 +48,10 @@ describe("load series covers weeks with no runs", () => {
     expect(series.length).toBe(11);
   });
 
-  it("runs to the current week so an open-ended gap still decays", () => {
+  it("runs to today so an open-ended gap still decays", () => {
     const series = weeklyLoadSeries([weekAgo(6, 200)]);
-    const thisWeek = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
-    expect(series.at(-1)?.weekStart).toBe(thisWeek);
+    // The last window is the seven days ending today.
+    expect(series.at(-1)?.weekStart).toBe(format(subDays(new Date(), 6), "yyyy-MM-dd"));
     expect(series.at(-1)?.load).toBe(0);
   });
 
@@ -59,7 +59,9 @@ describe("load series covers weeks with no runs", () => {
     const runs = [5, 4, 3, 2, 1, 0].map((w) => weekAgo(w, 120));
     const series = weeklyLoadSeries(runs);
     expect(series).toHaveLength(6);
-    expect(series.every((w) => w.load === 120)).toBe(true);
+    // One run per window, so every window carries the same (rescaled) load.
+    expect(new Set(series.map((w) => w.load)).size).toBe(1);
+    expect(series[0].load).toBeGreaterThan(0);
   });
 });
 

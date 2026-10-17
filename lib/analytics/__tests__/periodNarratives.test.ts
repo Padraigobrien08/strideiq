@@ -133,12 +133,21 @@ const fatigue = (freshness: number): FatigueSnapshot => ({
   ctl: 50,
   atl: 45,
   tsb: 5,
+  formPct: 3.75,
   freshness,
   label: "fresh",
   readiness: { balance: "fresh", currency: "current", volumeRatio: null },
   restDaysSinceLastRun: 1,
   evidence: [],
   usesProxyLoad: false,
+  loadSource: "training_load",
+  loadEvidence: {
+    sufficient: true,
+    confidence: "high",
+    historyDays: 120,
+    runCount: 40,
+    reasons: [],
+  },
 });
 
 const strategy = (fadeRisk: RaceStrategy["fadeRisk"]): RaceStrategy =>

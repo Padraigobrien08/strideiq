@@ -43,7 +43,7 @@ export function buildRiskContext(
       confidence: baseConf,
     }));
 
-  if (insights.fatigue.tsb < -18) {
+  if (insights.fatigue.formPct < -25) {
     risks.push({
       label: "Deep negative training stress balance",
       severity: "high",

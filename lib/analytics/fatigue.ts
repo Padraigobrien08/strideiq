@@ -1,30 +1,32 @@
 import type { RunActivity } from "@/lib/strava/types";
 import type { LegFeel } from "@/lib/wellness/types";
 import { DEFAULT_FEEL_CALIBRATION, type FeelCalibration } from "@/lib/wellness/calibration";
-import { parseISO, format, startOfWeek, addWeeks, differenceInCalendarDays } from "date-fns";
+import { parseISO, format, subDays, differenceInCalendarDays } from "date-fns";
+import { resolveLoadModel, type LoadModel, type LoadSource } from "./loadModel";
 
 export interface WeeklyLoadPoint {
+  /** First day (yyyy-MM-dd) of a seven-day window. Windows end on the anchor day, not on Sundays. */
   weekStart: string;
   label: string;
   load: number;
-  /**
-   * True for the final point, which covers the trailing seven days rather than a
-   * calendar week. See `weeklyLoadSeries`.
-   */
-  trailing?: boolean;
 }
 
 export interface AcuteChronicLoad {
   ctl: number;
   atl: number;
   tsb: number;
+  /** TSB as a percentage of CTL. See `formPercent`. */
+  formPct: number;
   history: { weekStart: string; label: string; ctl: number; atl: number }[];
 }
 
 export interface FatigueSnapshot {
   ctl: number;
   atl: number;
+  /** Raw CTL − ATL, for display. Decisions read `formPct`, which does not depend on volume. */
   tsb: number;
+  /** TSB as a percentage of CTL: how loaded the athlete is relative to their own norm. */
+  formPct: number;
   freshness: number;
   /** Display string. May be Rusty / Detrained / Returning once currency applies. */
   label: string;
@@ -42,90 +44,64 @@ export interface FatigueSnapshot {
   restDaysSinceLastRun: number;
   evidence: string[];
   usesProxyLoad: boolean;
+  /**
+   * Whether there is enough history for the load balance to mean anything. Decisions
+   * (Today, the planner, plan safety, the forecast, outcome learning) must not act on
+   * the balance when `sufficient` is false. See `assessLoadEvidence`.
+   */
+  loadEvidence: LoadEvidence;
+  /** Which per-run load the model used — one source per athlete. See `lib/analytics/loadModel.ts`. */
+  loadSource: LoadSource;
   /** The athlete's reported leg-feel for the day, if any — rides the snapshot to every consumer. */
   reportedLegFeel?: LegFeel;
 }
 
-export function weeklyLoadSeries(runs: RunActivity[]): WeeklyLoadPoint[] {
-  const withLoad = runs.filter((r) => r.trainingLoad !== null);
-  const useProxy = withLoad.length < runs.length * 0.5;
+/**
+ * Load per seven-day window, oldest first, ending on `asOf`.
+ *
+ * Windows count back from the anchor day rather than following Monday–Sunday calendar
+ * weeks. Calendar weeks made the model depend on the day it was read: the latest point
+ * was a partial week (on a Monday, one day treated as seven — freshness 49 → 86
+ * overnight on the demo athlete), and replacing it with a trailing seven days still
+ * left it overlapping a calendar week that held a different set of runs. Measured on
+ * the baseline fixtures, identical training read anywhere from 50 to 72 depending on
+ * the weekday. Anchored windows are all whole, never overlap, and do not move with the
+ * calendar, so the reading is the same whatever day it is.
+ *
+ * Windows with no runs are included as zero load, from the oldest run through `asOf`,
+ * so a layoff decays CTL and ATL instead of being absent from the series.
+ */
+export function weeklyLoadSeries(
+  runs: RunActivity[],
+  asOf: Date = new Date(),
+  model: LoadModel = resolveLoadModel(runs, asOf),
+): WeeklyLoadPoint[] {
+  if (runs.length === 0) return [];
 
-  // One rule for what a run costs, shared by the weekly buckets and the trailing
-  // window below. Two copies would drift, and the drift would look like a real
-  // change in fitness.
-  const loadOf = (run: RunActivity): number =>
-    useProxy ? (run.distanceM / 1000) * 10 : (run.trainingLoad ?? (run.distanceM / 1000) * 10);
-
-  const map = new Map<string, WeeklyLoadPoint>();
-
+  const loadByWindow = new Map<number, number>();
+  let oldest = 0;
   for (const run of runs) {
-    const d = parseISO(run.date);
-    const key = format(startOfWeek(d, { weekStartsOn: 1 }), "yyyy-MM-dd");
-    const existing = map.get(key) ?? {
-      weekStart: key,
-      label: format(parseISO(key), "MMM d"),
-      load: 0,
-    };
-    existing.load += loadOf(run);
-    map.set(key, existing);
+    const days = differenceInCalendarDays(asOf, parseISO(run.date));
+    // A run dated after the anchor (clock skew, a time-zone edge) counts as latest.
+    const index = Math.max(0, Math.floor(days / 7));
+    loadByWindow.set(index, (loadByWindow.get(index) ?? 0) + model.loadOf(run));
+    oldest = Math.max(oldest, index);
   }
 
-  if (map.size === 0) return [];
-
-  // Materialise the weeks with no runs. Only run-containing weeks used to reach
-  // the series, so the exponential average never saw a zero-load week: a layoff
-  // did not decay CTL or ATL, it was simply absent. Fill from the first run
-  // through the current week so a gap that runs up to today still decays.
-  const keys = [...map.keys()].sort();
   const out: WeeklyLoadPoint[] = [];
-  const now = new Date();
-  const lastWeek = startOfWeek(now, { weekStartsOn: 1 });
-  const lastWeekKey = format(lastWeek, "yyyy-MM-dd");
-  let cursor = parseISO(keys[0]);
-  while (cursor <= lastWeek) {
-    const key = format(cursor, "yyyy-MM-dd");
-    const point = map.get(key) ?? { weekStart: key, label: format(cursor, "MMM d"), load: 0 };
-    // The current calendar week is only partly over, but the exponential average
-    // treats every point as a whole week. On a Monday that fed in a single day as
-    // though it were seven, and acute load collapsed: measured on the demo athlete,
-    // ATL 66 → 40 and freshness 49 → 86 overnight on identical training. That decided
-    // whether the planner prescribed recovery, and tripped the Coach's "freshness
-    // supports quality work" line for anyone who happened to look on a Monday.
-    //
-    // So the final point covers the trailing seven days instead of the calendar week.
-    // It is always a whole week of load, needs no extrapolation from a partial one —
-    // which overshoots badly when the few elapsed days happen to hold a hard session —
-    // and is the same unit as every other point, so nothing downstream rescales.
-    // It overlaps the previous point by design; for an average that is mild smoothing,
-    // and far cheaper than a weekday artifact.
-    out.push(
-      key === lastWeekKey
-        ? { ...point, load: trailingSevenDayLoad(runs, now, loadOf), trailing: true }
-        : point,
-    );
-    cursor = addWeeks(cursor, 1);
-  }
-  // Any run dated beyond the current week (clock skew, a future-dated activity)
-  // would otherwise be dropped by the walk above.
-  for (const key of keys) {
-    if (key > format(lastWeek, "yyyy-MM-dd")) out.push(map.get(key)!);
+  for (let index = oldest; index >= 0; index--) {
+    const start = subDays(asOf, index * 7 + 6);
+    out.push({
+      weekStart: format(start, "yyyy-MM-dd"),
+      label: format(start, "MMM d"),
+      load: loadByWindow.get(index) ?? 0,
+    });
   }
   return out;
 }
 
-/** Total load in the seven days ending today, inclusive. */
-function trailingSevenDayLoad(
-  runs: RunActivity[],
-  now: Date,
-  loadOf: (run: RunActivity) => number,
-): number {
-  let total = 0;
-  for (const run of runs) {
-    const days = differenceInCalendarDays(now, parseISO(run.date));
-    if (days >= 0 && days < 7) total += loadOf(run);
-  }
-  return total;
-}
+/** Windows averaged to seed CTL and ATL. */
+const SEED_WEEKS = 4;
 
 export function acuteChronicLoad(
   series: WeeklyLoadPoint[],
@@ -138,8 +114,15 @@ export function acuteChronicLoad(
 ): AcuteChronicLoad {
   const alphaCtl = 2 / (ctlTauWeeks + 1);
   const alphaAtl = 2 / (atlTauWeeks + 1);
-  let ctl = 0;
-  let atl = 0;
+  // Seed both averages from the athlete's first weeks, not from zero. From zero, ATL
+  // (fast) climbs to the athlete's real load long before CTL (slow) does, so every new
+  // athlete read as deeply fatigued: TSB about -95 after one week and still about -30
+  // after six, with Today prescribing recovery throughout. Seeded at the early mean,
+  // steady training reads as balanced from the first week.
+  const head = series.slice(0, SEED_WEEKS);
+  const seed = head.length > 0 ? head.reduce((sum, w) => sum + w.load, 0) / head.length : 0;
+  let ctl = seed;
+  let atl = seed;
   const history: AcuteChronicLoad["history"] = [];
 
   for (const w of series) {
@@ -157,27 +140,56 @@ export function acuteChronicLoad(
     ctl: Math.round(ctl),
     atl: Math.round(atl),
     tsb: Math.round(ctl - atl),
+    formPct: formPercent(ctl, atl),
     history,
   };
 }
 
-export function freshnessFromTsb(
-  tsb: number,
+/**
+ * Form: TSB as a percentage of CTL, clamped to ±100.
+ *
+ * Raw TSB is in load units, so every fixed threshold on it meant something different
+ * for each athlete: ±10 was ±16% of the demo athlete's chronic load but ±2% for a
+ * high-volume runner, and changed again with the load source. Expressed as a share of
+ * the athlete's own chronic load, the same state reads the same way at any volume.
+ *
+ * Thresholds that used to read raw TSB were converted with one mapping, taken from the
+ * old Neutral band's edges (−10 → −15 %, +10 → +10 %): `form = 1.25 × tsb − 2.5`. That
+ * keeps every rule in the same order relative to the others; signs are unchanged.
+ */
+export function formPercent(ctl: number, atl: number): number {
+  if (ctl <= 0) return 0;
+  const pct = ((ctl - atl) / ctl) * 100;
+  return Math.round(Math.max(-100, Math.min(100, pct)) * 10) / 10;
+}
+
+/** The old raw-TSB value a form percentage corresponds to — the inverse of the mapping above. */
+const legacyTsb = (formPct: number) => (formPct + 2.5) / 1.25;
+
+/**
+ * Freshness (0–100) and its label from form. The bands are the old raw-TSB bands carried
+ * through the documented mapping, so the 0–100 scale — which dozens of downstream
+ * thresholds read — keeps its shape: Fresh above +10 %, Fatigued below −15 %.
+ */
+export function freshnessFromForm(
+  formPct: number,
   restDaysSinceLastRun: number,
   legFeel?: LegFeel,
   calibration: FeelCalibration = DEFAULT_FEEL_CALIBRATION,
 ): { freshness: number; label: string } {
+  // The original raw-TSB bands, read on the legacy-equivalent value.
+  const legacy = legacyTsb(formPct);
   let freshness: number;
   let label: string;
 
-  if (tsb > 10) {
-    freshness = Math.min(100, 75 + Math.min(25, tsb));
+  if (legacy > 10) {
+    freshness = Math.min(100, 75 + Math.min(25, legacy));
     label = "Fresh";
-  } else if (tsb >= -10) {
-    freshness = 40 + Math.round(((tsb + 10) / 20) * 34);
+  } else if (legacy >= -10) {
+    freshness = 40 + Math.round(((legacy + 10) / 20) * 34);
     label = "Neutral";
   } else {
-    freshness = Math.max(0, 39 + Math.round(tsb));
+    freshness = Math.max(0, 39 + Math.round(legacy));
     label = "Fatigued";
   }
 
@@ -283,33 +295,97 @@ export function applyCurrency(
   return { freshness, label };
 }
 
+export interface LoadEvidence {
+  sufficient: boolean;
+  /** Low when insufficient or intensity-blind (distance only); high after twelve weeks. */
+  confidence: "low" | "medium" | "high";
+  /** Calendar days from the first run to today. */
+  historyDays: number;
+  runCount: number;
+  /** Plain-language reasons the reading is limited; empty when nothing limits it. */
+  reasons: string[];
+}
+
+/** Four weeks: what the seeded averages need before a deviation means something. */
+export const MIN_LOAD_HISTORY_DAYS = 28;
+/** A long span with a handful of runs is still no basis for a balance. */
+export const MIN_LOAD_RUNS = 4;
+
+/**
+ * Is there enough history for the balance to be evidence?
+ *
+ * Seeding (see `acuteChronicLoad`) removed the systematic "new athletes look
+ * fatigued" bias, but with under four weeks of runs the averages still rest on a
+ * week or two of load, and one long run swings the reading. Those athletes get
+ * "not enough evidence": decisions fall back to schedule and intensity rules rather
+ * than treating the number as a finding.
+ */
+export function assessLoadEvidence(
+  runs: RunActivity[],
+  model: LoadModel,
+  asOf: Date = new Date(),
+): LoadEvidence {
+  const runCount = runs.length;
+  const earliest = runs.reduce<string | null>(
+    (min, r) => (min === null || r.date < min ? r.date : min),
+    null,
+  );
+  const historyDays = earliest
+    ? Math.max(0, differenceInCalendarDays(asOf, parseISO(earliest)))
+    : 0;
+
+  const reasons: string[] = [];
+  if (historyDays < MIN_LOAD_HISTORY_DAYS) {
+    reasons.push(
+      `Only ${historyDays} days of training history; the load balance needs ${MIN_LOAD_HISTORY_DAYS} to settle.`,
+    );
+  }
+  if (runCount < MIN_LOAD_RUNS) {
+    reasons.push(`Only ${runCount} runs; the load balance needs at least ${MIN_LOAD_RUNS}.`);
+  }
+  const sufficient = reasons.length === 0;
+  if (model.source === "distance") {
+    reasons.push("Load from distance only: session intensity is not counted.");
+  }
+
+  const confidence =
+    !sufficient || model.source === "distance" ? "low" : historyDays < 84 ? "medium" : "high";
+  return { sufficient, confidence, historyDays, runCount, reasons };
+}
+
+const LOAD_SOURCE_EVIDENCE: Record<LoadSource, string> = {
+  relative_effort: "Load from Strava Relative Effort, scaled to a distance-equivalent unit.",
+  training_load: "Load from Strava Training Load, scaled to a distance-equivalent unit.",
+  distance: "Load estimated from distance (no effort score on most recent runs).",
+};
+
 export function buildFatigueSnapshot(
   runs: RunActivity[],
   legFeel?: LegFeel,
   calibration: FeelCalibration = DEFAULT_FEEL_CALIBRATION,
 ): FatigueSnapshot {
-  const series = weeklyLoadSeries(runs);
-  const withLoad = runs.filter((r) => r.trainingLoad !== null);
-  const usesProxyLoad = withLoad.length < runs.length * 0.5;
+  const model = resolveLoadModel(runs);
+  const loadEvidence = assessLoadEvidence(runs, model);
+  const series = weeklyLoadSeries(runs, new Date(), model);
+  const usesProxyLoad = model.source === "distance";
 
-  const { ctl, atl, tsb, history } = acuteChronicLoad(series);
+  const { ctl, atl, tsb, formPct, history } = acuteChronicLoad(series);
   const sorted = [...runs].sort((a, b) => parseISO(b.date).getTime() - parseISO(a.date).getTime());
   const lastRun = sorted[0];
   const restDaysSinceLastRun = lastRun
     ? Math.floor((Date.now() - parseISO(lastRun.date).getTime()) / (1000 * 60 * 60 * 24))
     : 99;
 
-  const balance = freshnessFromTsb(tsb, restDaysSinceLastRun, legFeel, calibration);
+  const balance = freshnessFromForm(formPct, restDaysSinceLastRun, legFeel, calibration);
   const volumeRatio = volumeCurrencyRatio(runs);
   const currency = classifyCurrency(restDaysSinceLastRun, volumeRatio);
   const { freshness, label } = applyCurrency(balance, currency);
 
   const evidence = [
-    `Chronic load (CTL): ${ctl} · Acute load (ATL): ${atl} · Balance (TSB): ${tsb > 0 ? "+" : ""}${tsb}.`,
+    `Chronic load (CTL): ${ctl} · Acute load (ATL): ${atl} · Balance (TSB): ${tsb > 0 ? "+" : ""}${tsb} (${formPct > 0 ? "+" : ""}${Math.round(formPct)}% of CTL).`,
     `Rest days since last run: ${restDaysSinceLastRun}.`,
-    usesProxyLoad
-      ? "Load estimated from distance (training load missing on many runs)."
-      : "Based on Strava training load from your export.",
+    LOAD_SOURCE_EVIDENCE[model.source],
+    ...(loadEvidence.sufficient ? [] : loadEvidence.reasons.slice(0, 1)),
   ];
 
   if (history.length >= 2) {
@@ -337,6 +413,7 @@ export function buildFatigueSnapshot(
     ctl,
     atl,
     tsb,
+    formPct,
     freshness,
     label,
     readiness: {
@@ -348,6 +425,8 @@ export function buildFatigueSnapshot(
     restDaysSinceLastRun,
     evidence,
     usesProxyLoad,
+    loadEvidence,
+    loadSource: model.source,
     reportedLegFeel: legFeel,
   };
 }

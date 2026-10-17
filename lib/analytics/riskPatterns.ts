@@ -2,6 +2,7 @@ import type { WeeklyVolume } from "./volume";
 import type { IntensityAdvice } from "./intensityAdvisor";
 import type { RunWorkoutLabel } from "./workoutType";
 import type { FatigueSnapshot } from "./fatigue";
+import { formPercent } from "./fatigue";
 import type { RunActivity } from "@/lib/strava/types";
 import type { DashboardInsights } from "./index";
 
@@ -99,7 +100,7 @@ function detectNegativeBalanceStreak(i: RiskPatternInput): RiskPattern | null {
   let streak = 0;
   for (let k = i.loadHistory.length - 1; k >= 0; k--) {
     const h = i.loadHistory[k];
-    if (h.ctl - h.atl < -10) streak++;
+    if (formPercent(h.ctl, h.atl) < -15) streak++;
     else break;
   }
   if (streak < 2) return null;

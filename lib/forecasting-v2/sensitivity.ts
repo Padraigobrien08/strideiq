@@ -66,6 +66,8 @@ export function computeForecastSensitivity(input: RaceForecastInput): Sensitivit
           ...ctx,
           freshnessScore: (ctx.freshnessScore ?? 50) + 15,
           tsb: (ctx.tsb ?? 0) + 5,
+          // +5 raw TSB through the documented mapping (form = 1.25 × tsb − 2.5).
+          formPct: ctx.formPct != null ? ctx.formPct + 6.25 : undefined,
         },
       },
     },

@@ -12,7 +12,7 @@ export function inferTaperResponse(analytics: DashboardInsights): AdaptationSign
 
   if (!volDrop && r.daysUntilRace > 10) return [];
 
-  const effective = analytics.fatigue.freshness >= 50 && analytics.fatigue.tsb > -8;
+  const effective = analytics.fatigue.freshness >= 50 && analytics.fatigue.formPct > -12;
 
   return [
     {
@@ -28,7 +28,7 @@ export function inferTaperResponse(analytics: DashboardInsights): AdaptationSign
         volDrop ? "Volume down vs prior block" : "Race proximity",
       ],
       contradictoryEvidence:
-        !effective && analytics.fatigue.tsb < -12 ? ["TSB still deeply negative"] : [],
+        !effective && analytics.fatigue.formPct < -17 ? ["TSB still deeply negative"] : [],
       stability: effective ? "stable" : "emerging",
     },
   ];

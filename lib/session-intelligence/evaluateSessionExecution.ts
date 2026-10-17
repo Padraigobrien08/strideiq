@@ -21,7 +21,7 @@ function fatigueCostFromContext(
   lateFade: number | null,
 ): SessionIntelligence["fatigueCost"] {
   if (workout.type === "easy" || workout.type === "recovery") return "low";
-  if (analytics && analytics.fatigue.tsb < -15) return "high";
+  if (analytics && analytics.fatigue.formPct < -21) return "high";
   if (lateFade != null && lateFade > 10) return "high";
   if (workout.type === "interval" || workout.type === "race") return "moderate";
   return "low";

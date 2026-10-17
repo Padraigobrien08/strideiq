@@ -14,12 +14,22 @@ function fatigue(freshness: number, tsb: number): FatigueSnapshot {
     ctl: 40,
     atl: 40,
     tsb,
+    // The snapshot's mapping from raw TSB, so each case keeps its original meaning.
+    formPct: 1.25 * tsb - 2.5,
     freshness,
     label: "test",
     readiness: { balance: "neutral", currency: "current", volumeRatio: null },
     restDaysSinceLastRun: 1,
     evidence: [],
     usesProxyLoad: false,
+    loadSource: "training_load",
+    loadEvidence: {
+      sufficient: true,
+      confidence: "high",
+      historyDays: 120,
+      runCount: 40,
+      reasons: [],
+    },
   };
 }
 

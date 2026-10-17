@@ -44,12 +44,21 @@ const fatigue: FatigueSnapshot = {
   ctl: 80,
   atl: 85,
   tsb: -5,
+  formPct: -8.75,
   freshness: 50,
   label: "Neutral",
   readiness: { balance: "neutral", currency: "current", volumeRatio: null },
   restDaysSinceLastRun: 1,
   evidence: [],
   usesProxyLoad: false,
+  loadSource: "training_load",
+  loadEvidence: {
+    sufficient: true,
+    confidence: "high",
+    historyDays: 120,
+    runCount: 40,
+    reasons: [],
+  },
 };
 
 describe("buildSplitPlan", () => {
@@ -66,7 +75,7 @@ describe("buildSplitPlan", () => {
 
 describe("fadeRiskScore", () => {
   it("flags high risk with short long run and negative tsb", () => {
-    const { level } = fadeRiskScore(1.1, -12, 14, 21.0975);
+    const { level } = fadeRiskScore(1.1, -17.5, 14, 21.0975);
     expect(level).toBe("high");
   });
 });

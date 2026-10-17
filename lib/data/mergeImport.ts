@@ -10,9 +10,9 @@ import type { ActivitySummary, Goal, RunActivity, StravaImport } from "@/lib/str
  * export does. Replacing the whole record therefore *deleted* those fields on every
  * sync-after-import — silently, and on the documented Path A → Path B flow.
  *
- * `trainingLoad` is the costly one: `weeklyLoadSeries` switches to a
- * distance-derived proxy once more than half the runs lack it, so losing it moved
- * CTL/ATL/TSB and everything downstream of them.
+ * `trainingLoad` is the costly one: `resolveLoadModel` picks the athlete's load source
+ * by coverage, so losing it can switch the source and move CTL/ATL/TSB and
+ * everything downstream of them.
  *
  * Trade-off, stated deliberately: if a source genuinely means "this value has been
  * cleared" it cannot express that through this merge, and the older value survives.

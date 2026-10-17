@@ -67,7 +67,7 @@ export function trainingCopy(analytics: DashboardInsights): HomePanelCopy {
   const fatigue = analytics.fatigue;
   let severity: PanelSeverity =
     adv.status === "too_hard" ? "warning" : adv.status === "balanced" ? "positive" : "neutral";
-  if (fatigue.tsb < -25) severity = "critical";
+  if (fatigue.formPct < -34) severity = "critical";
 
   return {
     title: intensityTitles[adv.status],

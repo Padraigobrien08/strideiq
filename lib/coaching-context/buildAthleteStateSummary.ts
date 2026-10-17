@@ -9,9 +9,9 @@ import type {
   SpecificityLabel,
 } from "./types";
 
-function mapFatigueState(freshness: number, tsb: number): FatigueStateLabel {
-  if (freshness >= 65 && tsb > -5) return "fresh";
-  if (freshness < 45 || tsb < -15) return "fatigued";
+function mapFatigueState(freshness: number, formPct: number): FatigueStateLabel {
+  if (freshness >= 65 && formPct > -9) return "fresh";
+  if (freshness < 45 || formPct < -21) return "fatigued";
   if (freshness >= 45 && freshness < 65) return "neutral";
   return "unknown";
 }
@@ -64,7 +64,10 @@ export function buildAthleteStateSummary(insights: DashboardInsights): CoachingC
   const freshness = insights.fatigue.freshness;
   const readiness = insights.raceReadiness?.score;
 
-  const fatigueState = mapFatigueState(freshness, insights.fatigue.tsb);
+  // The planner's guardrails and the LLM both read this. Without load evidence they get
+  // no number and an "unknown" state, so neither can treat noise as a finding.
+  const loadKnown = insights.fatigue.loadEvidence.sufficient;
+  const fatigueState = loadKnown ? mapFatigueState(freshness, insights.fatigue.formPct) : "unknown";
   const durability = mapDurability(insights);
   const specificity = mapSpecificity(insights);
   const intensityBalance = mapIntensityBalance(insights);
@@ -72,7 +75,11 @@ export function buildAthleteStateSummary(insights: DashboardInsights): CoachingC
   const reportedLegFeel = insights.fatigue.reportedLegFeel;
 
   const parts: string[] = [];
-  parts.push(`Freshness ${Math.round(freshness)} (TSB ${insights.fatigue.tsb.toFixed(0)}).`);
+  parts.push(
+    loadKnown
+      ? `Freshness ${Math.round(freshness)} (TSB ${insights.fatigue.tsb.toFixed(0)}).`
+      : `Not enough training history yet to judge freshness (${insights.fatigue.loadEvidence.historyDays} days).`,
+  );
   if (reportedLegFeel) parts.push(`Athlete reports ${reportedLegFeel} legs today.`);
   if (readiness != null) parts.push(`Readiness signal ~${Math.round(readiness)}.`);
   parts.push(`${focus}: ${rationale}`);
@@ -81,7 +88,7 @@ export function buildAthleteStateSummary(insights: DashboardInsights): CoachingC
 
   return {
     readiness: readiness != null ? Math.round(readiness) : undefined,
-    freshness: Math.round(freshness),
+    freshness: loadKnown ? Math.round(freshness) : undefined,
     reportedLegFeel,
     fatigueState,
     durability,

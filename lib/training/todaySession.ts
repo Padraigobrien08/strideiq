@@ -79,8 +79,13 @@ export function recommendTodaySession(i: TodaySessionInput): TodaySessionRecomme
   const confidence = i.runCount >= 20 ? "high" : i.runCount >= 8 ? "medium" : "low";
   const days = i.raceReadiness?.daysUntilRace ?? null;
   const freshness = Math.round(i.fatigue.freshness);
+  // Under four weeks of history the balance is not evidence: it neither forces
+  // recovery nor unlocks quality, and the schedule and intensity rules decide.
+  const loadKnown = i.fatigue.loadEvidence.sufficient;
   const evidence = [
-    `Freshness ${freshness} (TSB ${Math.round(i.fatigue.tsb)})`,
+    loadKnown
+      ? `Freshness ${freshness} (TSB ${Math.round(i.fatigue.tsb)})`
+      : `Not enough load history yet (${i.fatigue.loadEvidence.historyDays} days)`,
     i.daysSinceLastHard != null
       ? `${i.daysSinceLastHard}d since last quality session`
       : "No recent quality session",
@@ -106,7 +111,7 @@ export function recommendTodaySession(i: TodaySessionInput): TodaySessionRecomme
   }
 
   // 2. Deep fatigue → recovery or rest.
-  if (i.fatigue.freshness < 30 || i.fatigue.tsb < -25) {
+  if (loadKnown && (i.fatigue.freshness < 30 || i.fatigue.formPct < -34)) {
     return make(
       "recovery",
       "Recovery run or rest",
@@ -171,8 +176,12 @@ export function recommendTodaySession(i: TodaySessionInput): TodaySessionRecomme
     );
   }
 
-  // 6. Fresh and due for quality → tempo.
-  if (i.fatigue.freshness >= 50 && (i.daysSinceLastHard == null || i.daysSinceLastHard >= 3)) {
+  // 6. Fresh and due for quality → tempo. Without load evidence, only an athlete with
+  // quality sessions on record is "due" one: schedule, not balance, decides.
+  const dueForQuality = loadKnown
+    ? i.fatigue.freshness >= 50 && (i.daysSinceLastHard == null || i.daysSinceLastHard >= 3)
+    : i.daysSinceLastHard != null && i.daysSinceLastHard >= 3;
+  if (dueForQuality) {
     const gap = i.daysSinceLastHard == null ? "a while" : `${i.daysSinceLastHard} days`;
     return make(
       "tempo",
@@ -180,7 +189,9 @@ export function recommendTodaySession(i: TodaySessionInput): TodaySessionRecomme
       kmRange(i.typicalRunKm),
       "hard",
       [
-        `You're fresh (freshness ${freshness}) and it's been ${gap} since a quality session, a good day for a tempo/threshold effort.`,
+        loadKnown
+          ? `You're fresh (freshness ${freshness}) and it's been ${gap} since a quality session, a good day for a tempo/threshold effort.`
+          : `It's been ${gap} since a quality session, so one is due. There isn't enough training history yet to judge your load, so keep it controlled.`,
       ],
       ["Intervals (e.g. 5–6 × 3 min hard)", "Easy run if you're not feeling it"],
       confidence,
@@ -192,7 +203,7 @@ export function recommendTodaySession(i: TodaySessionInput): TodaySessionRecomme
   if (
     i.daysSinceLastLong != null &&
     i.daysSinceLastLong >= 6 &&
-    i.fatigue.freshness >= 45 &&
+    (!loadKnown || i.fatigue.freshness >= 45) &&
     i.longestRunKm > 0
   ) {
     return make(

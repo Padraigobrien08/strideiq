@@ -91,8 +91,10 @@ export function evaluatePendingOutcomes(
     };
     return evaluateRecommendationOutcome({
       outcome: withSignals,
-      freshness: analytics.fatigue.freshness,
-      tsb: analytics.fatigue.tsb,
+      // Too little history and the balance would be judged on noise.
+      ...(analytics.fatigue.loadEvidence.sufficient
+        ? { freshness: analytics.fatigue.freshness, tsb: analytics.fatigue.tsb }
+        : {}),
       readinessScore: analytics.raceReadiness?.score ?? analytics.halfMarathonReadiness.score,
       efficiencyTrend: analytics.efficiencySummary.trend,
       hardRuns14d: analytics.intensityAdvice.hardRunsLast14d,

@@ -133,7 +133,7 @@ export function getPrimaryRecommendation(
       : ` You're rebuilding from ${stalenessClause(analytics.fatigue)}: judge next week from how these feel.`;
     return returning.firstStep + context;
   }
-  if (analytics.fatigue.tsb < -12) {
+  if (analytics.fatigue.formPct < -17) {
     return "Prioritize recovery: cap hard sessions and protect easy aerobic rhythm until freshness rebounds.";
   }
   if (analytics.raceReadiness && analytics.raceReadiness.daysUntilRace <= 14) {
@@ -225,7 +225,7 @@ export function getTrajectorySeries(analytics: DashboardInsights): TrajectorySer
   };
 
   const freshTrend =
-    analytics.fatigue.tsb > 0 ? "up" : analytics.fatigue.tsb < -8 ? "down" : "flat";
+    analytics.fatigue.tsb > 0 ? "up" : analytics.fatigue.formPct < -12 ? "down" : "flat";
 
   const freshness: TrajectorySeries = {
     id: "freshness",

@@ -191,7 +191,10 @@ describe("recovery and taper hold back", () => {
    * while making the hint authoritative.
    */
   it("gives a fatigued athlete a recovery week even when asked to build", () => {
-    const context = contexts.noGoal();
+    // Fatigued with the history to show it. `noGoal` (12 days) once stood in here but
+    // only read as fatigued because the averages started from zero, and `overloaded`
+    // (9 days) is now, correctly, not enough evidence for a load-based recovery week.
+    const context = contexts.fatigueHeavy();
     expect(context.currentState.fatigueState).toBe("fatigued");
 
     const build = buildSafeFallbackWeeklyPlan(
