@@ -7,6 +7,7 @@ import type { WeekSnapshot } from "@/lib/analytics/week";
 import type { WeeklyVolume } from "@/lib/analytics/volume";
 import type { WorkoutType } from "@/lib/analytics/workoutType";
 import type { ReturnToRunningPlan } from "@/lib/returning/returnToRunning";
+import { isTrainingCurrent, stalenessClause } from "@/lib/insights/consistency";
 import { validatePlan } from "./safety";
 import {
   addWeeks,
@@ -425,7 +426,12 @@ function buildBasePlan(ctx: PlanContext, week: { weekStart: string; weekLabel: s
   const easy2 = Math.round(cap * 0.2 * 10) / 10;
   const quality = Math.round(cap * 0.18 * 10) / 10;
 
-  const allowQuality = ctx.fatigue.freshness >= 50 && ctx.intensityAdvice.status !== "too_hard";
+  // Currency gates quality and the long run on its own. Stale athletes normally
+  // get the return plan, but reach here when there is no pre-gap baseline to
+  // ramp from, and CURRENCY_CAP still lets their freshness clear 50.
+  const current = isTrainingCurrent(ctx.fatigue);
+  const allowQuality =
+    current && ctx.fatigue.freshness >= 50 && ctx.intensityAdvice.status !== "too_hard";
 
   const sessions: PlannedSession[] = [
     {
@@ -440,12 +446,19 @@ function buildBasePlan(ctx: PlanContext, week: { weekStart: string; weekLabel: s
       distanceKmRange: [easy2 - 1, easy2 + 2],
       description: "Easy run, nose breathing",
     },
-    {
-      day: "Sat",
-      type: "long",
-      distanceKmRange: [longKm - 1, longKm + 2],
-      description: `Long easy run: build toward ${longKm.toFixed(0)} km`,
-    },
+    current
+      ? {
+          day: "Sat",
+          type: "long",
+          distanceKmRange: [longKm - 1, longKm + 2],
+          description: `Long easy run: build toward ${longKm.toFixed(0)} km`,
+        }
+      : {
+          day: "Sat",
+          type: "easy",
+          distanceKmRange: [easy1 - 1, easy1 + 2],
+          description: "Easy run: no long run until training is current again",
+        },
   ];
 
   if (allowQuality) {
@@ -478,7 +491,9 @@ function buildBasePlan(ctx: PlanContext, week: { weekStart: string; weekLabel: s
       `Consistency ${ctx.consistencyScore.overall}/100 · freshness ${ctx.fatigue.freshness}/100.`,
       allowQuality
         ? "One quality session fits current freshness and intensity balance."
-        : "Quality session held: freshness or intensity balance suggests more easy work first.",
+        : current
+          ? "Quality session held: freshness or intensity balance suggests more easy work first."
+          : `Quality and long runs held after ${stalenessClause(ctx.fatigue)}: easy running first.`,
     ],
   };
 }

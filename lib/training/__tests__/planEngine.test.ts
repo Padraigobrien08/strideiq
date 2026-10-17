@@ -73,6 +73,33 @@ function baseContext(overrides: Partial<PlanContext> = {}): PlanContext {
 }
 
 describe("buildNextWeekPlan", () => {
+  it("holds quality and the long run when training is not current", () => {
+    // Stale but with no return ramp (no pre-gap baseline), so the base plan runs.
+    // Freshness 65 is the rusty CURRENCY_CAP and would otherwise unlock quality.
+    const plan = buildNextWeekPlan(
+      baseContext({
+        fatigue: {
+          ...baseContext().fatigue,
+          freshness: 65,
+          readiness: { balance: "neutral", currency: "rusty", volumeRatio: 0.3 },
+          restDaysSinceLastRun: 10,
+        },
+      }),
+    );
+    expect(plan.template).toBe("base");
+    const types = plan.sessions.map((s) => s.type);
+    expect(types).not.toContain("tempo");
+    expect(types).not.toContain("interval");
+    expect(types).not.toContain("long");
+    expect(plan.rationale.join(" ")).toMatch(/10 days without a run/);
+  });
+
+  it("still plans quality and a long run for a current athlete", () => {
+    const types = buildNextWeekPlan(baseContext()).sessions.map((s) => s.type);
+    expect(types).toContain("long");
+    expect(types.some((t) => t === "tempo" || t === "interval")).toBe(true);
+  });
+
   it("uses recovery template when fatigued", () => {
     const plan = buildNextWeekPlan(
       baseContext({
