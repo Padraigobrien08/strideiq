@@ -18,13 +18,14 @@ export function inferFatiguePatterns(analytics: DashboardInsights): AthleteBelie
           intensityAdvice.recommendations[0] ?? "Intensity stacking signal",
           `TSB ${Math.round(fatigue.tsb)}`,
         ].filter(Boolean),
-        confidence: intensityAdvice.hardRunsLast14d >= 4 && fatigue.tsb < -10 ? "medium" : "low",
+        confidence:
+          intensityAdvice.hardRunsLast14d >= 4 && fatigue.formPct < -15 ? "medium" : "low",
         recommendedUse: "Space quality sessions and cap hard days when planning the next week.",
       }),
     );
   }
 
-  if (fatigue.tsb < -12) {
+  if (fatigue.formPct < -17) {
     out.push(
       createBelief({
         id: "fatigue-negative-tsb",
@@ -35,7 +36,7 @@ export function inferFatiguePatterns(analytics: DashboardInsights): AthleteBelie
           `TSB ${Math.round(fatigue.tsb)}`,
           `Freshness ${Math.round(fatigue.freshness)} (${fatigue.label})`,
         ],
-        confidence: fatigue.tsb < -18 ? "medium" : "low",
+        confidence: fatigue.formPct < -25 ? "medium" : "low",
         counterEvidence: fatigue.freshness >= 60 ? ["Freshness still moderate despite TSB"] : [],
         recommendedUse: "Bias plans toward recovery or maintenance until TSB improves.",
       }),
@@ -45,7 +46,7 @@ export function inferFatiguePatterns(analytics: DashboardInsights): AthleteBelie
   // Only a fresh window if the freshness came from recovering between sessions.
   // After a layoff the same number is just rest, and reading it as "quality is
   // absorbable" points the athlete at exactly the wrong first week back.
-  if (fatigue.freshness >= 65 && fatigue.tsb > -5 && isTrainingCurrent(fatigue)) {
+  if (fatigue.freshness >= 65 && fatigue.formPct > -9 && isTrainingCurrent(fatigue)) {
     out.push(
       createBelief({
         id: "fatigue-fresh-window",

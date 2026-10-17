@@ -105,7 +105,7 @@ export function recommendTodaySession(i: TodaySessionInput): TodaySessionRecomme
   }
 
   // 2. Deep fatigue → recovery or rest.
-  if (i.fatigue.freshness < 30 || i.fatigue.tsb < -25) {
+  if (i.fatigue.freshness < 30 || i.fatigue.formPct < -34) {
     return make(
       "recovery",
       "Recovery run or rest",

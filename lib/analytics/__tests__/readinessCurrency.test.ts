@@ -3,7 +3,7 @@ import {
   applyCurrency,
   buildFatigueSnapshot,
   classifyCurrency,
-  freshnessFromTsb,
+  freshnessFromForm,
   volumeCurrencyRatio,
 } from "../fatigue";
 import type { RunActivity } from "@/lib/strava/types";
@@ -128,7 +128,9 @@ describe("the guarantee, end to end", () => {
     for (let d = 60; d >= 0; d -= 2) runs.push(daysAgo(d, 12, 120));
     const snap = buildFatigueSnapshot(runs);
     expect(snap.readiness.currency).toBe("current");
-    expect(snap.freshness).toBe(freshnessFromTsb(snap.tsb, snap.restDaysSinceLastRun).freshness);
+    expect(snap.freshness).toBe(
+      freshnessFromForm(snap.formPct, snap.restDaysSinceLastRun).freshness,
+    );
   });
 
   it("scores a stale high balance below a current one with less balance", () => {

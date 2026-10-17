@@ -91,7 +91,7 @@ export function inferLikelyDrivers(
     }
 
     case "fatigue": {
-      if (analytics.fatigue.tsb < -10) {
+      if (analytics.fatigue.formPct < -15) {
         drivers.push(
           driver({
             driver: "Accumulated training load (negative TSB)",

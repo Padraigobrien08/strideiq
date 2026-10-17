@@ -54,7 +54,7 @@ export function buildDefaultInvestigation(
 
   let recommendation =
     "Maintain aerobic rhythm and avoid stacking extra intensity before key sessions.";
-  if (analytics.fatigue.tsb < -10) {
+  if (analytics.fatigue.formPct < -15) {
     recommendation = "Prioritize recovery density: ease the next hard session until TSB rebounds.";
   } else if (analytics.raceReadiness && analytics.raceReadiness.daysUntilRace <= 14) {
     recommendation =

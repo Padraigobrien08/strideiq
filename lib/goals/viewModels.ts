@@ -171,7 +171,7 @@ function buildProjection(
       ? `Even-effort ~${formatPace(primary.timeSec / primary.distanceKm)}. Adjust for course and weather.`
       : null,
     fadeRisk:
-      analytics.fatigue.tsb < -15
+      analytics.fatigue.formPct < -21
         ? "Elevated fatigue may increase late-race fade vs projection."
         : null,
     explanation: analysis.explanation,
@@ -284,7 +284,7 @@ function buildRisks(
     }
   }
 
-  if (analytics.fatigue.tsb < -12) {
+  if (analytics.fatigue.formPct < -17) {
     risks.push({
       title: "Elevated fatigue",
       severity: "high",
@@ -405,7 +405,7 @@ function buildHero(
     r.gaps[0]?.metric ??
     (analytics.intensityAdvice.status === "paused"
       ? "Time away from running"
-      : analytics.fatigue.tsb < -10
+      : analytics.fatigue.formPct < -15
         ? "Fatigue accumulation"
         : analytics.intensityAdvice.status === "too_hard"
           ? "Threshold density slightly elevated"

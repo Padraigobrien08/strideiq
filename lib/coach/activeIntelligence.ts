@@ -111,7 +111,7 @@ export function buildActiveObservations(
       domain: "Readiness",
       confidence: "high",
     });
-  } else if (analytics.fatigue.tsb < -12) {
+  } else if (analytics.fatigue.formPct < -17) {
     push({
       id: "fatigue",
       text: "Fatigue balance is strained: acute load is outpacing recovery.",
@@ -197,7 +197,7 @@ export function deriveCurrentFocus(
     };
   }
 
-  if (analytics.fatigue.tsb < -15) {
+  if (analytics.fatigue.formPct < -21) {
     return {
       focus: "Fatigue management",
       rationale: "TSB and freshness suggest recovery should lead the next decisions.",
@@ -249,7 +249,7 @@ export function buildCoachingDomains(
       trendBadge:
         analytics.fatigue.freshness >= 65
           ? { label: "Fresh", tone: "up" }
-          : analytics.fatigue.tsb < -10
+          : analytics.fatigue.formPct < -15
             ? { label: "Loaded", tone: "alert" }
             : { label: "Neutral", tone: "flat" },
       memoryRef: mem("taper") ?? mem("fatigue"),
@@ -410,7 +410,7 @@ export function buildTemporalContext(analytics: DashboardInsights, raceGoal: Rac
     fatigueRecovery:
       analytics.fatigue.tsb > 0
         ? "Recovery trend positive (TSB positive)"
-        : analytics.fatigue.tsb < -12
+        : analytics.fatigue.formPct < -17
           ? "Recovery lagging load"
           : "Load and recovery in balance",
   };
@@ -430,7 +430,7 @@ export function buildRisksAndOpportunities(
       domain: "Fatigue",
     });
   }
-  if (analytics.fatigue.tsb < -12) {
+  if (analytics.fatigue.formPct < -17) {
     out.push({
       id: "tsb",
       text: "Acute load outpacing recovery: freshness under pressure",
@@ -538,16 +538,16 @@ export function buildCoachWorkspaceState(
   const eco = analytics.trainingEcosystem;
 
   const riskLevel: "low" | "moderate" | "elevated" =
-    analytics.fatigue.tsb < -15 || eco.scores.interferenceRisk >= 60
+    analytics.fatigue.formPct < -21 || eco.scores.interferenceRisk >= 60
       ? "elevated"
-      : analytics.fatigue.tsb < -8 || analytics.intensityAdvice.status === "too_hard"
+      : analytics.fatigue.formPct < -12 || analytics.intensityAdvice.status === "too_hard"
         ? "moderate"
         : "low";
 
   const adaptationTrend: CoachWorkspaceState["snapshot"]["adaptationTrend"] =
     analytics.efficiencySummary.trend === "improving"
       ? "improving"
-      : analytics.fatigue.tsb < -12
+      : analytics.fatigue.formPct < -17
         ? "strained"
         : "stable";
 

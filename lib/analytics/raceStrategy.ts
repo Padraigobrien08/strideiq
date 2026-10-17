@@ -123,7 +123,8 @@ export function buildSplitPlan(
 
 export function fadeRiskScore(
   exponent: number | null,
-  tsb: number,
+  /** Form: TSB as a percentage of CTL (`FatigueSnapshot.formPct`). */
+  formPct: number,
   longestRunKm: number,
   raceDistanceKm: number,
 ): { level: "low" | "medium" | "high"; factors: string[] } {
@@ -145,12 +146,13 @@ export function fadeRiskScore(
     );
   }
 
-  if (tsb < -10) {
+  const form = `${formPct > 0 ? "+" : ""}${Math.round(formPct)}% of chronic load`;
+  if (formPct < -15) {
     score += 35;
-    factors.push(`Training stress balance is ${tsb}: fatigue may amplify late-race fade.`);
-  } else if (tsb < -5) {
+    factors.push(`Training stress balance is ${form}: fatigue may amplify late-race fade.`);
+  } else if (formPct < -9) {
     score += 20;
-    factors.push(`Slightly negative TSB (${tsb}): watch early pace discipline.`);
+    factors.push(`Slightly negative training balance (${form}): watch early pace discipline.`);
   }
 
   if (score === 0) {
@@ -229,7 +231,7 @@ export function simulateRaceStrategy(
   const exponent = prediction.regression?.exponent ?? null;
   const { level: fadeRisk, factors } = fadeRiskScore(
     exponent,
-    fatigue.tsb,
+    fatigue.formPct,
     longestRunKm,
     cfg.raceDistanceKm,
   );

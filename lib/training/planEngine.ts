@@ -561,7 +561,7 @@ export function buildNextWeekPlan(ctx: PlanContext): WeekPlan {
     plan = buildBasePlan(ctx, week);
   }
 
-  const { plan: safePlan } = validatePlan(plan, lastCompletedWeekKm(ctx), ctx.fatigue.tsb);
+  const { plan: safePlan } = validatePlan(plan, lastCompletedWeekKm(ctx), ctx.fatigue.formPct);
 
   return safePlan;
 }

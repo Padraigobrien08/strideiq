@@ -36,7 +36,9 @@ function summarizeWindow(
     longestRunKm = Math.max(longestRunKm, r.distanceM / 1000);
   }
 
-  const series = weeklyLoadSeries(inWindow);
+  // Anchored at the window's end: unanchored, the series ran on to today and
+  // `tsbAtEnd` described the athlete now rather than at the PR.
+  const series = weeklyLoadSeries(inWindow, end);
   const load = series.length > 0 ? acuteChronicLoad(series) : null;
 
   return {
