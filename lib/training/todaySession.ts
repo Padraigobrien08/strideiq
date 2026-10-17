@@ -5,6 +5,7 @@ import type { RaceReadiness } from "@/lib/analytics/readiness";
 import type { RunWorkoutLabel, WorkoutType } from "@/lib/analytics/workoutType";
 import { WORKOUT_TYPE_LABELS } from "@/lib/analytics/workoutType";
 import type { WeeklyVolume } from "@/lib/analytics/volume";
+import { isTrainingCurrent, stalenessClause } from "@/lib/insights/consistency";
 
 /**
  * "What should I run today?" — a single-session recommendation.
@@ -157,7 +158,25 @@ export function recommendTodaySession(i: TodaySessionInput): TodaySessionRecomme
     );
   }
 
-  // 5. Fresh and due for quality → tempo. Without load evidence, only an athlete with
+  // 5. Training not current → easy return run. Freshness alone cannot gate
+  // this: CURRENCY_CAP leaves a rusty athlete at up to 65 and a detrained one
+  // at 50, which the quality and long-run thresholds below would still pass.
+  if (!isTrainingCurrent(i.fatigue)) {
+    return make(
+      "easy",
+      "Easy return run",
+      kmRange(Math.min(i.typicalRunKm * 0.7, 8)),
+      "easy",
+      [
+        `Coming back after ${stalenessClause(i.fatigue)}: keep today easy and hold quality and long runs until a few easy runs feel normal again.`,
+      ],
+      ["Run/walk if the gap was several weeks", "Rest another day if anything feels off"],
+      confidence,
+      evidence,
+    );
+  }
+
+  // 6. Fresh and due for quality → tempo. Without load evidence, only an athlete with
   // quality sessions on record is "due" one: schedule, not balance, decides.
   const dueForQuality = loadKnown
     ? i.fatigue.freshness >= 50 && (i.daysSinceLastHard == null || i.daysSinceLastHard >= 3)
@@ -180,7 +199,7 @@ export function recommendTodaySession(i: TodaySessionInput): TodaySessionRecomme
     );
   }
 
-  // 6. Long run overdue.
+  // 7. Long run overdue.
   if (
     i.daysSinceLastLong != null &&
     i.daysSinceLastLong >= 6 &&
@@ -201,7 +220,7 @@ export function recommendTodaySession(i: TodaySessionInput): TodaySessionRecomme
     );
   }
 
-  // 7. Default: easy aerobic.
+  // 8. Default: easy aerobic.
   return make(
     "easy",
     "Easy aerobic",
