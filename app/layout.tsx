@@ -1,21 +1,21 @@
 import type { Metadata } from "next";
-import { DM_Sans, Syne } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { ThemeScript } from "@/components/theme/theme-script";
 import { cn } from "@/lib/utils";
 
-const dmSans = DM_Sans({
+// One variable family for text and headings (SPEC §5.3); Geist Mono for the
+// instrument-style figures. Both are variable fonts, so every weight is one file.
+const geist = Geist({
   subsets: ["latin"],
   variable: "--font-sans",
-  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
-const syne = Syne({
+const geistMono = Geist_Mono({
   subsets: ["latin"],
-  variable: "--font-display",
-  weight: ["500", "600", "700", "800"],
+  variable: "--font-geist-mono",
   display: "swap",
 });
 
@@ -31,7 +31,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("dark", dmSans.variable, syne.variable)} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={cn("light", geist.variable, geistMono.variable)}
+      suppressHydrationWarning
+    >
       <head>
         <ThemeScript />
       </head>

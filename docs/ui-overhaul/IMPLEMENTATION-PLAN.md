@@ -78,6 +78,27 @@ The overhaul should recompose existing domain logic rather than replace it.
 - Coach is reachable from every primary screen.
 - Mobile navigation does not overflow or obscure content.
 
+## 4b. Phase 1b — Visual system
+
+Added after the Phase 0 audit (decision D5): every later screen depends on it.
+
+### Work
+
+- Retune the theme tokens in `app/globals.css` to the warm palette (SPEC §5.4): warm off-white base, charcoal text, one muted copper accent, sage positive, amber caution, restrained red risk. Add `--positive`, `--caution` and `--risk` with `-wash` backgrounds.
+- Make warm light the default (theme store, pre-paint theme script, `<html>` class); dark stays a user choice with the same hues.
+- Remove decorative gradients (the body glow).
+- Retune the light-mode compatibility layer that remaps hard-coded `text-zinc-*`, `bg-white/…` and `border-white/…` utilities, so un-migrated screens shift with the theme. Screens move from hard-coded utilities to tokens in their own phases rather than in one sweep (≈1,270 uses in 161 files).
+- Typography: Geist for text and headings, Geist Mono for instrument figures; semibold headings with tight tracking and compact leading; tabular figures for metrics.
+
+### Tests
+
+- `lib/theme/__tests__/themeContrast.test.ts`: every text/background token pair and every compatibility-layer text colour meets WCAG 2.2 AA in both themes (`npm run contrast` prints the table).
+
+### Exit criteria
+
+- Contrast test passes in both themes.
+- Primary screens render in light and dark without unreadable text; visual regressions on not-yet-rebuilt screens are listed for their phase.
+
 ## 5. Phase 2 — Today
 
 ### Primary files

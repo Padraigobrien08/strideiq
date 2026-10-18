@@ -41,6 +41,7 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "contrast": "CONTRAST_REPORT=1 vitest run lib/theme --reporter=verbose",
     "check": "tsc --noEmit && prettier --check . && eslint && vitest run",
     "setup": "node scripts/setup.mjs",
     "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs",
