@@ -107,7 +107,32 @@ describe("opening and closing", () => {
 describe("finding a command", () => {
   it("lists navigation and actions before any typing", async () => {
     await open();
-    expect(screen.getByRole("button", { name: /home/i })).toBeInTheDocument();
+    for (const name of [/^today/i, /^training$/i, /^progress/i, /^coach/i]) {
+      expect(screen.getByRole("button", { name })).toBeInTheDocument();
+    }
+  });
+
+  // NAV-02: routes that left the top nav keep a way in.
+  it("still lists every compatibility destination", async () => {
+    await open();
+    for (const name of [
+      /activities/i,
+      /intelligence/i,
+      /performance/i,
+      /training load/i,
+      /report/i,
+    ]) {
+      expect(screen.getByRole("button", { name })).toBeInTheDocument();
+    }
+  });
+
+  it("finds Today and Training by their old names", async () => {
+    const input = await open();
+    await userEvent.type(input, "home");
+    expect(rows()[0]).toHaveTextContent(/today/i);
+    await userEvent.clear(input);
+    await userEvent.type(input, "plan");
+    expect(rows()[0]).toHaveTextContent(/training/i);
   });
 
   it("filters by visible label", async () => {

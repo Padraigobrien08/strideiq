@@ -12,6 +12,8 @@ import { cn } from "@/lib/utils";
 import { AlertCircle, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { intelligenceUrl } from "@/lib/coach/domainLinks";
+import { parseCoachSource, SOURCE_LABELS, type CoachSourceParams } from "@/lib/coach/sourceContext";
+import { format, parseISO } from "date-fns";
 
 export function CoachReasoningWorkspace({
   disabled,
@@ -31,6 +33,7 @@ export function CoachReasoningWorkspace({
   const domainParam = searchParams.get("domain");
   const qParam = searchParams.get("q");
   const investigate = searchParams.get("investigate") === "1";
+  const source = parseCoachSource(searchParams);
 
   useEffect(() => {
     if (!intel.state || bootstrapped.current) return;
@@ -87,6 +90,8 @@ export function CoachReasoningWorkspace({
           <span>{disabledReason}</span>
         </div>
       ) : null}
+
+      {source ? <CoachSourceLine source={source} /> : null}
 
       <div className="coach-grid relative grid min-h-0 flex-1 grid-cols-1 overflow-hidden lg:grid-cols-[240px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)_264px]">
         {sidebarOpen && showSidebar ? (
@@ -160,6 +165,24 @@ export function CoachReasoningWorkspace({
         ) : null}
       </div>
     </div>
+  );
+}
+
+/**
+ * Says what Coach was opened about (NAV-03). Phase 1 knows the page and id; Phase 5
+ * attaches the entity itself and its thread history.
+ */
+function CoachSourceLine({ source }: { source: CoachSourceParams }) {
+  const detail = source.date
+    ? format(parseISO(source.date), "EEE d MMM")
+    : source.activity
+      ? "this run"
+      : null;
+  return (
+    <p className="shrink-0 border-b border-white/[0.04] px-4 py-1.5 text-[12px] text-zinc-400">
+      Opened from <span className="font-medium text-zinc-200">{SOURCE_LABELS[source.source]}</span>
+      {detail ? <span className="text-zinc-500"> · {detail}</span> : null}
+    </p>
   );
 }
 

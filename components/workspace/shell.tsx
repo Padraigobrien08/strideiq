@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { CommandPalette, openCommandPalette } from "@/components/command-palette";
 import { cn } from "@/lib/utils";
-import { Settings, Search } from "lucide-react";
+import { coachUrl } from "@/lib/coach/domainLinks";
+import { coachSourceForPath } from "@/lib/coach/sourceContext";
+import { MessageCircle, Settings, Search } from "lucide-react";
 
 /**
  * Usable workspace width on large displays. This frame is the single place that
@@ -73,6 +75,34 @@ function WorkspaceMeta() {
   );
 }
 
+/**
+ * The persistent Ask Coach action (SPEC §4.1): not a destination, but available from
+ * every page, carrying which page it came from so Coach can say so.
+ */
+function AskCoachLink({ pathname }: { pathname: string }) {
+  const onCoach = pathname === "/coach";
+  const href = coachUrl(coachSourceForPath(pathname) ?? undefined);
+  return (
+    <Link
+      href={href}
+      aria-label="Ask Coach"
+      aria-current={onCoach ? "page" : undefined}
+      className={cn(
+        "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-md border px-2.5 text-[0.8125rem] font-medium transition-colors",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70",
+        onCoach
+          ? "border-accent/50 bg-accent/15 text-foreground"
+          : "border-accent/30 text-accent hover:bg-accent/10",
+      )}
+    >
+      <MessageCircle className="h-4 w-4" aria-hidden />
+      <span>
+        Ask<span className="hidden min-[360px]:inline"> Coach</span>
+      </span>
+    </Link>
+  );
+}
+
 export function AppWorkspaceShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isHome = pathname === "/home" || pathname === "/plan";
@@ -94,12 +124,20 @@ export function AppWorkspaceShell({ children }: { children: React.ReactNode }) {
         isCoach ? "h-dvh max-h-dvh overflow-hidden" : "min-h-dvh",
       )}
     >
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[60] focus:rounded-md focus:bg-accent focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-white"
+      >
+        Skip to content
+      </a>
       <header className="sticky top-0 z-50 shrink-0 border-b border-[var(--border-subtle)] bg-[var(--header-bg)] backdrop-blur-xl">
-        <WorkspaceFrame className="flex h-[var(--app-nav-height)] items-center gap-3 sm:gap-5">
+        <WorkspaceFrame className="flex h-[var(--app-nav-height)] items-center gap-2 sm:gap-5">
           <Link href="/home" className="type-title shrink-0 text-[1.0625rem] tracking-[-0.03em]">
             Stride<span className="text-accent">IQ</span>
           </Link>
-          <Nav variant="app" className="min-w-0 flex-1" />
+          <Nav className="hidden sm:block" />
+          <div className="flex-1" />
+          <AskCoachLink pathname={pathname} />
           <button
             type="button"
             onClick={openCommandPalette}
@@ -128,9 +166,21 @@ export function AppWorkspaceShell({ children }: { children: React.ReactNode }) {
           <ThemeToggle className="shrink-0" />
           <WorkspaceMeta />
         </WorkspaceFrame>
+        {/* Phones: the three destinations get their own full-width row rather than
+            being squeezed beside the actions (SPEC §10.3). */}
+        <WorkspaceFrame className="border-t border-[var(--border-subtle)] sm:hidden">
+          <Nav layout="bar" />
+        </WorkspaceFrame>
       </header>
 
-      <main className={cn(isCoach ? "flex min-h-0 flex-1 flex-col overflow-hidden" : "flex-1")}>
+      <main
+        id="main"
+        tabIndex={-1}
+        className={cn(
+          "focus:outline-none",
+          isCoach ? "flex min-h-0 flex-1 flex-col overflow-hidden" : "flex-1",
+        )}
+      >
         <WorkspaceFrame
           variant={isCoach ? "coach" : "default"}
           className={cn(
