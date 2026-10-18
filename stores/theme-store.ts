@@ -12,7 +12,8 @@ interface ThemeState {
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set, get) => ({
-      theme: "dark",
+      // Warm light is the product default (overhaul Phase 1b); dark is a choice.
+      theme: "light",
       setTheme: (theme) => set({ theme }),
       toggleTheme: () => set({ theme: get().theme === "dark" ? "light" : "dark" }),
     }),

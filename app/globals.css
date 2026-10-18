@@ -4,129 +4,154 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Theme tokens. Warm light is the default (docs/ui-overhaul/SPEC.md §5.4: warm off-white
+ * base, charcoal text, one muted copper accent, sage for positive, amber for caution,
+ * restrained red for risk); dark is the opt-in. Every text/background pairing below is
+ * held to WCAG 2.2 AA by lib/theme/__tests__/themeContrast.test.ts — change a value and
+ * that test says whether it still reads.
+ *
+ * Status tokens (--positive/--caution/--risk with a -wash background) are new in
+ * overhaul Phase 1b; screens adopt them as they are rebuilt. Status is never colour
+ * alone — pair them with a word or an icon.
+ */
 :root,
-html.dark {
-  color-scheme: dark;
-  --background: #09090b;
-  --foreground: #fafafa;
-  --muted: rgba(255, 255, 255, 0.06);
-  --muted-subtle: #71717a;
-  --accent: #f0864a;
-  --accent-muted: #3a1f12;
-  --warning: #fbbf24;
-  --card: rgba(255, 255, 255, 0.04);
-  --border: rgba(255, 255, 255, 0.1);
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-default: rgba(255, 255, 255, 0.1);
-  --surface: rgba(255, 255, 255, 0.04);
-  --surface-hover: rgba(255, 255, 255, 0.07);
-  --surface-elevated: #0c0d10;
-  --surface-subdued: #0a0b0e;
-  --surface-panel: #0e1015;
-  --header-bg: rgba(9, 9, 11, 0.88);
-  --input-bg: rgba(255, 255, 255, 0.03);
-  --surface-shadow:
-    0 1px 0 0 rgba(255, 255, 255, 0.05) inset, 0 10px 40px -18px rgba(0, 0, 0, 0.55);
-  --surface-shadow-subtle: 0 1px 0 0 rgba(255, 255, 255, 0.03) inset;
-  --chart-grid: rgba(255, 255, 255, 0.06);
-  --chart-tick-fill: #a1a1aa;
-  --chart-tooltip-bg: #18181b;
-  --chart-tooltip-border: rgba(255, 255, 255, 0.1);
-  --chart-tooltip-fg: #fafafa;
-  --chart-ref-line: rgba(255, 255, 255, 0.12);
-  --chart-sparkline: rgba(255, 255, 255, 0.12);
-  --chart-ring-track: rgba(255, 255, 255, 0.05);
+html.light {
+  color-scheme: light;
+  --background: #f7f5f1;
+  --foreground: #1f1d1a;
+  --muted: rgba(31, 29, 26, 0.04);
+  --muted-subtle: #6b655d;
+  --accent: #a94b1d;
+  --accent-muted: #f3e3d7;
+  --warning: #8a5a00;
+  --card: rgba(31, 29, 26, 0.03);
+  --border: rgba(31, 29, 26, 0.12);
+  --border-subtle: rgba(31, 29, 26, 0.08);
+  --border-default: rgba(31, 29, 26, 0.14);
+  --surface: rgba(31, 29, 26, 0.035);
+  --surface-hover: rgba(31, 29, 26, 0.06);
+  --surface-elevated: #ffffff;
+  --surface-subdued: #fbfaf7;
+  --surface-panel: #ffffff;
+  --header-bg: rgba(247, 245, 241, 0.92);
+  --input-bg: #ffffff;
+  --surface-shadow: 0 1px 0 0 rgba(31, 29, 26, 0.04) inset, 0 8px 30px -14px rgba(31, 29, 26, 0.14);
+  --surface-shadow-subtle: 0 1px 0 0 rgba(31, 29, 26, 0.03) inset;
+  --chart-grid: rgba(31, 29, 26, 0.08);
+  --chart-tick-fill: #625c54;
+  --chart-tooltip-bg: #ffffff;
+  --chart-tooltip-border: rgba(31, 29, 26, 0.1);
+  --chart-tooltip-fg: #1f1d1a;
+  --chart-ref-line: rgba(31, 29, 26, 0.14);
+  --chart-sparkline: rgba(31, 29, 26, 0.16);
+  --chart-ring-track: rgba(31, 29, 26, 0.08);
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --app-nav-height: 3rem;
   --coach-page-pad: 0.75rem;
-  --body-glow-1: rgba(240, 134, 74, 0.15);
-  --body-glow-2: rgba(240, 134, 74, 0.06);
-  --card-foreground: #fafafa;
-  --popover: #18181b;
-  --popover-foreground: #fafafa;
-  --primary: #f0864a;
-  --primary-foreground: #1a0d04;
-  --secondary: rgba(255, 255, 255, 0.06);
-  --secondary-foreground: #fafafa;
-  --muted-foreground: #a1a1aa;
-  --destructive: #ef4444;
-  --input: rgba(255, 255, 255, 0.1);
-  --ring: rgba(240, 134, 74, 0.45);
+  /* No decorative gradients (SPEC §5.4): the body glow is off. */
+  --body-glow-1: transparent;
+  --body-glow-2: transparent;
+  --card-foreground: #1f1d1a;
+  --popover: #ffffff;
+  --popover-foreground: #1f1d1a;
+  --primary: #a94b1d;
+  --primary-foreground: #ffffff;
+  --secondary: rgba(31, 29, 26, 0.05);
+  --secondary-foreground: #1f1d1a;
+  --muted-foreground: #514c45;
+  --destructive: #b42318;
+  --input: rgba(31, 29, 26, 0.14);
+  --ring: rgba(169, 75, 29, 0.4);
+
+  --positive: #2e6a3c;
+  --positive-wash: #e2ece0;
+  --caution: #845300;
+  --caution-wash: #f6ead1;
+  --risk: #a8301d;
+  --risk-wash: #f7e0db;
 
   /* Home console (instrument direction) — scoped tokens, do not affect other routes */
-  --home-signal: #f0864a;
-  --home-signal-strong: #ff9a5c;
-  --home-signal-wash: rgba(240, 134, 74, 0.12);
-  --home-signal-line: rgba(240, 134, 74, 0.42);
-  --home-signal-ink: #1a0d04;
-  --home-redline: #ff5e4d;
-  --home-good: #4ec48a;
+  --home-signal: #a94b1d;
+  --home-signal-strong: #8f3f18;
+  --home-signal-wash: rgba(169, 75, 29, 0.1);
+  --home-signal-line: rgba(169, 75, 29, 0.35);
+  --home-signal-ink: #ffffff;
+  --home-redline: #b42318;
+  --home-good: #2e6a3c;
   /* effort scale — mirrors CalendarIntensity */
-  --hz-easy: #5f8fb0;
-  --hz-recovery: #4aa88a;
-  --hz-moderate: #d0982e;
-  --hz-hard: #ff5e4d;
-  --hz-rest: rgba(255, 255, 255, 0.16);
+  --hz-easy: #3f6f8f;
+  --hz-recovery: #3d7a5c;
+  --hz-moderate: #9a6b12;
+  --hz-hard: #b42318;
+  --hz-rest: rgba(31, 29, 26, 0.16);
 }
 
-html.light {
-  color-scheme: light;
-  --background: #f4f4f5;
-  --foreground: #18181b;
-  --muted: rgba(0, 0, 0, 0.04);
-  --muted-subtle: #71717a;
-  --accent: #d95d24;
-  --accent-muted: #f8e7dc;
-  --warning: #d97706;
-  --card: rgba(0, 0, 0, 0.03);
-  --border: rgba(0, 0, 0, 0.1);
-  --border-subtle: rgba(0, 0, 0, 0.08);
-  --border-default: rgba(0, 0, 0, 0.12);
-  --surface: rgba(0, 0, 0, 0.04);
-  --surface-hover: rgba(0, 0, 0, 0.06);
-  --surface-elevated: #ffffff;
-  --surface-subdued: #fafafa;
-  --surface-panel: #ffffff;
-  --header-bg: rgba(244, 244, 245, 0.92);
-  --input-bg: #ffffff;
-  --surface-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.04) inset, 0 8px 30px -12px rgba(0, 0, 0, 0.12);
-  --surface-shadow-subtle: 0 1px 0 0 rgba(0, 0, 0, 0.03) inset;
-  --chart-grid: rgba(0, 0, 0, 0.08);
-  --chart-tick-fill: #52525b;
-  --chart-tooltip-bg: #ffffff;
-  --chart-tooltip-border: rgba(0, 0, 0, 0.1);
-  --chart-tooltip-fg: #18181b;
-  --chart-ref-line: rgba(0, 0, 0, 0.12);
-  --chart-sparkline: rgba(0, 0, 0, 0.14);
-  --chart-ring-track: rgba(0, 0, 0, 0.08);
-  --body-glow-1: rgba(217, 93, 36, 0.08);
-  --body-glow-2: rgba(217, 93, 36, 0.04);
-  --card-foreground: #18181b;
-  --popover: #ffffff;
-  --popover-foreground: #18181b;
-  --primary: #d95d24;
-  --primary-foreground: #fff6f0;
-  --secondary: rgba(0, 0, 0, 0.04);
-  --secondary-foreground: #18181b;
-  --muted-foreground: #52525b;
-  --destructive: #dc2626;
-  --input: rgba(0, 0, 0, 0.12);
-  --ring: rgba(217, 93, 36, 0.35);
+html.dark {
+  color-scheme: dark;
+  --background: #100f0d;
+  --foreground: #f5f2ec;
+  --muted: rgba(255, 248, 238, 0.06);
+  --muted-subtle: #948c81;
+  --accent: #e3824d;
+  --accent-muted: #3a2216;
+  --warning: #e3b25c;
+  --card: rgba(255, 248, 238, 0.04);
+  --border: rgba(255, 248, 238, 0.1);
+  --border-subtle: rgba(255, 248, 238, 0.06);
+  --border-default: rgba(255, 248, 238, 0.1);
+  --surface: rgba(255, 248, 238, 0.04);
+  --surface-hover: rgba(255, 248, 238, 0.07);
+  --surface-elevated: #16140f;
+  --surface-subdued: #12110e;
+  --surface-panel: #181612;
+  --header-bg: rgba(16, 15, 13, 0.88);
+  --input-bg: rgba(255, 248, 238, 0.03);
+  --surface-shadow:
+    0 1px 0 0 rgba(255, 248, 238, 0.05) inset, 0 10px 40px -18px rgba(0, 0, 0, 0.55);
+  --surface-shadow-subtle: 0 1px 0 0 rgba(255, 248, 238, 0.03) inset;
+  --chart-grid: rgba(255, 248, 238, 0.06);
+  --chart-tick-fill: #a8a095;
+  --chart-tooltip-bg: #1c1a16;
+  --chart-tooltip-border: rgba(255, 248, 238, 0.1);
+  --chart-tooltip-fg: #f5f2ec;
+  --chart-ref-line: rgba(255, 248, 238, 0.12);
+  --chart-sparkline: rgba(255, 248, 238, 0.12);
+  --chart-ring-track: rgba(255, 248, 238, 0.05);
+  --body-glow-1: transparent;
+  --body-glow-2: transparent;
+  --card-foreground: #f5f2ec;
+  --popover: #1c1a16;
+  --popover-foreground: #f5f2ec;
+  --primary: #e3824d;
+  --primary-foreground: #1d0f06;
+  --secondary: rgba(255, 248, 238, 0.06);
+  --secondary-foreground: #f5f2ec;
+  --muted-foreground: #b3ab9f;
+  --destructive: #f26b5b;
+  --input: rgba(255, 248, 238, 0.1);
+  --ring: rgba(227, 130, 77, 0.45);
 
-  /* Home console (instrument direction) — scoped tokens, do not affect other routes */
-  --home-signal: #d95d24;
-  --home-signal-strong: #b84e18;
-  --home-signal-wash: rgba(217, 93, 36, 0.1);
-  --home-signal-line: rgba(217, 93, 36, 0.35);
-  --home-signal-ink: #fff6f0;
-  --home-redline: #d63a2a;
-  --home-good: #1f9d63;
-  --hz-easy: #3f77a0;
-  --hz-recovery: #2f8f72;
-  --hz-moderate: #b07d16;
-  --hz-hard: #d63a2a;
-  --hz-rest: rgba(0, 0, 0, 0.16);
+  --positive: #8fbf99;
+  --positive-wash: rgba(143, 191, 153, 0.14);
+  --caution: #e3b25c;
+  --caution-wash: rgba(227, 178, 92, 0.14);
+  --risk: #f2806f;
+  --risk-wash: rgba(242, 128, 111, 0.14);
+
+  --home-signal: #e3824d;
+  --home-signal-strong: #f09a69;
+  --home-signal-wash: rgba(227, 130, 77, 0.12);
+  --home-signal-line: rgba(227, 130, 77, 0.42);
+  --home-signal-ink: #1d0f06;
+  --home-redline: #f26b5b;
+  --home-good: #8fbf99;
+  --hz-easy: #6f9bb8;
+  --hz-recovery: #5cae8c;
+  --hz-moderate: #d4a03a;
+  --hz-hard: #f26b5b;
+  --hz-rest: rgba(255, 248, 238, 0.16);
 }
 
 html.coach-route,
@@ -140,9 +165,9 @@ body.coach-route {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-display);
-  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", "Cascadia Code", monospace;
   --text-base: 0.9375rem;
   --text-base--line-height: 1.55;
   --text-sm: 0.875rem;
@@ -218,15 +243,15 @@ body::before {
    (zinc-600 ≈ 2.5:1, zinc-700 ≈ 1.9:1). Values chosen to clear AA for small
    text while preserving the 500 > 600 > 700 ordering. */
 html.dark .text-zinc-500 {
-  color: #8a8a92;
+  color: #9a9286;
 }
 
 html.dark .text-zinc-600 {
-  color: #828289;
+  color: #928a7f;
 }
 
 html.dark .text-zinc-700 {
-  color: #7c7c85;
+  color: #8b8378;
 }
 
 /* Light mode: remap common dark-first Tailwind utilities */
@@ -235,34 +260,52 @@ html.light .text-white {
 }
 
 html.light .text-zinc-100 {
-  color: #27272a;
+  color: #2a2723;
 }
 
 html.light .text-zinc-200 {
-  color: #3f3f46;
+  color: #36322d;
 }
 
 html.light .text-zinc-300 {
-  color: #52525b;
+  color: #46413b;
 }
 
 html.light .text-zinc-400 {
-  color: #71717a;
+  color: #514c45;
 }
 
 html.light .text-zinc-500 {
-  color: #71717a;
+  color: #625c54;
 }
 
 html.light .text-zinc-600 {
-  color: #a1a1aa;
+  color: #6b655d;
 }
 
-html.light [class*="border-white"] {
+/* Plain utilities only: "[class*=…]" alone also matched variants such as
+   hover:bg-white/[0.04], which painted a permanent tint on every hover-only control. */
+/* Dark-first status text (pale amber/red, ≈130 uses) is unreadable on a light page.
+   Render it as the AA-checked status tokens until each screen adopts them directly. */
+html.light [class^="text-amber-"],
+html.light [class*=" text-amber-"] {
+  color: var(--caution);
+}
+
+html.light [class^="text-red-"],
+html.light [class*=" text-red-"],
+html.light [class^="text-rose-"],
+html.light [class*=" text-rose-"] {
+  color: var(--risk);
+}
+
+html.light [class^="border-white"],
+html.light [class*=" border-white"] {
   border-color: var(--border-subtle) !important;
 }
 
-html.light [class*="bg-white/"] {
+html.light [class^="bg-white/"],
+html.light [class*=" bg-white/"] {
   background-color: var(--surface) !important;
 }
 
@@ -275,8 +318,7 @@ html.light [class*="bg-\\[\\#12"] {
   background-color: var(--surface-elevated) !important;
 }
 
-html.light .hover\:bg-white\/5:hover,
-html.light .hover\:bg-white\/\[0\.05\]:hover {
+html.light [class*="hover:bg-white/"]:hover {
   background-color: var(--surface-hover) !important;
 }
 
@@ -294,7 +336,7 @@ html.light option {
 }
 
 .font-display {
-  font-family: var(--font-display);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Home dashboard micro-interactions */
@@ -349,7 +391,7 @@ html.light option {
 }
 
 html.light .coach-terminal {
-  background: linear-gradient(180deg, #ffffff 0%, #f4f4f5 100%);
+  background: linear-gradient(180deg, #ffffff 0%, var(--background) 100%);
   box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.04);
 }
 
@@ -362,7 +404,7 @@ html.light .coach-mini-context {
 }
 
 html.light .coach-state-pane {
-  background: #fafafa;
+  background: var(--surface-subdued);
 }
 
 html.light .coach-reasoning-panel {
@@ -385,7 +427,8 @@ html.light .intelligence-evolution {
 
 html.light .route-terminal {
   background:
-    radial-gradient(ellipse 100% 60% at 50% 0%, rgba(217, 93, 36, 0.06), transparent 55%), #f4f4f5;
+    radial-gradient(ellipse 100% 60% at 50% 0%, rgba(169, 75, 29, 0.05), transparent 55%),
+    var(--background);
 }
 
 html.light .route-scrubber {
@@ -409,7 +452,7 @@ html.light .skeleton-shimmer {
 
 /* Coach intelligence terminal */
 .coach-terminal {
-  background: linear-gradient(180deg, #0c0d10 0%, #09090b 100%);
+  background: linear-gradient(180deg, var(--surface-elevated) 0%, var(--background) 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
@@ -875,11 +918,13 @@ html.coach-route .coach-message-column {
     @apply font-display text-foreground;
     text-wrap: balance;
   }
+  /* Headings: semibold, tight tracking, compact leading (SPEC §5.3). Geist reads heavy
+     at bold, so weight comes from 600 and size does the rest. */
   h1 {
-    @apply text-[1.375rem] font-bold leading-[1.15] tracking-[-0.02em] sm:text-[1.625rem];
+    @apply text-[1.375rem] font-semibold leading-[1.1] tracking-[-0.025em] sm:text-[1.625rem];
   }
   h2 {
-    @apply text-lg font-semibold leading-snug tracking-[-0.015em];
+    @apply text-lg font-semibold leading-snug tracking-[-0.02em];
   }
   h3 {
     @apply text-base font-semibold leading-snug;
@@ -894,13 +939,13 @@ html.coach-route .coach-message-column {
 
 @layer components {
   .type-display {
-    @apply font-display text-[1.625rem] font-bold leading-[1.12] tracking-[-0.02em] text-foreground sm:text-[1.875rem];
+    @apply font-display text-[1.625rem] font-semibold leading-[1.08] tracking-[-0.03em] text-foreground sm:text-[1.875rem];
   }
   .type-page-title {
-    @apply font-display text-[1.375rem] font-bold leading-[1.15] tracking-[-0.02em] text-foreground sm:text-[1.625rem];
+    @apply font-display text-[1.375rem] font-semibold leading-[1.1] tracking-[-0.025em] text-foreground sm:text-[1.625rem];
   }
   .type-title {
-    @apply font-display text-lg font-semibold leading-snug tracking-[-0.015em] text-foreground;
+    @apply font-display text-lg font-semibold leading-snug tracking-[-0.02em] text-foreground;
   }
   .type-section-label {
     @apply text-[0.6875rem] font-semibold uppercase tracking-[0.11em] text-muted-foreground;
@@ -918,7 +963,7 @@ html.coach-route .coach-message-column {
     @apply text-xs leading-relaxed text-muted-foreground;
   }
   .type-metric {
-    @apply font-display text-[1.75rem] font-semibold leading-none tracking-[-0.02em] text-foreground tabular-nums sm:text-[2rem];
+    @apply font-display text-[1.75rem] font-semibold leading-none tracking-[-0.025em] text-foreground tabular-nums sm:text-[2rem];
   }
   .type-stat {
     @apply text-sm font-medium tabular-nums text-foreground;
