@@ -119,3 +119,41 @@ describe("an existing goal", () => {
     expect(clearRaceGoal).toHaveBeenCalled();
   });
 });
+
+describe("race name (overhaul D6)", () => {
+  it("saves a trimmed name when given", async () => {
+    render(<CompactRaceGoalForm />);
+    await userEvent.type(screen.getByLabelText(/race name/i), "  Edinburgh Half Marathon ");
+    await userEvent.click(screen.getByRole("button", { name: /update mission/i }));
+    expect(setRaceGoal.mock.calls[0]?.[0]).toMatchObject({ name: "Edinburgh Half Marathon" });
+  });
+
+  it("leaves the name out rather than saving a blank one", async () => {
+    const goal = await submitWithTarget("");
+    expect(goal).not.toHaveProperty("name");
+  });
+
+  it("shows the name on the collapsed trigger, falling back to the distance", () => {
+    state.raceGoal = { distance: "hm", date: "2026-12-20", name: "Edinburgh Half Marathon" };
+    render(<CompactRaceGoalForm />);
+    expect(screen.getByText(/edinburgh half marathon/i)).toBeInTheDocument();
+  });
+});
+
+describe("editing a saved goal keeps what was there", () => {
+  it("re-saves the existing target time and name untouched", async () => {
+    state.raceGoal = {
+      distance: "hm",
+      date: "2026-12-20",
+      targetTimeSec: 6300,
+      name: "Edinburgh Half Marathon",
+    };
+    render(<CompactRaceGoalForm />);
+    await userEvent.click(screen.getByRole("button", { name: /race mission setup/i }));
+    await userEvent.click(screen.getByRole("button", { name: /update mission/i }));
+    expect(setRaceGoal.mock.calls[0]?.[0]).toMatchObject({
+      targetTimeSec: 6300,
+      name: "Edinburgh Half Marathon",
+    });
+  });
+});

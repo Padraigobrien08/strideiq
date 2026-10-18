@@ -86,7 +86,7 @@ function confidenceLabel(c: RaceForecastV2["confidence"]): string {
   return map[c];
 }
 
-function buildKeyEfforts(
+export function buildKeyEfforts(
   input: NonNullable<ReturnType<typeof buildRaceForecastInput>>,
 ): ForecastV2KeyEffort[] {
   const targetKm = input.goal.distanceMeters / 1000;

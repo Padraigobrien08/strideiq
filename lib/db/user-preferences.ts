@@ -23,7 +23,7 @@ export async function getUserPreferences(userId: string): Promise<UserPreference
       LIMIT 1
     `;
     const goalRows = await sql`
-      SELECT distance, race_date, target_time_sec
+      SELECT distance, race_date, target_time_sec, name
       FROM user_race_goals
       WHERE user_id = ${userId}::uuid
       LIMIT 1
@@ -36,6 +36,7 @@ export async function getUserPreferences(userId: string): Promise<UserPreference
           distance: RaceDistance;
           race_date: string;
           target_time_sec: number | null;
+          name: string | null;
         }
       | undefined;
 
@@ -52,6 +53,7 @@ export async function getUserPreferences(userId: string): Promise<UserPreference
               ? goalRow.race_date.slice(0, 10)
               : new Date(goalRow.race_date).toISOString().slice(0, 10),
           ...(goalRow.target_time_sec ? { targetTimeSec: goalRow.target_time_sec } : {}),
+          ...(goalRow.name ? { name: goalRow.name } : {}),
         }
       : null;
 
@@ -92,18 +94,20 @@ export async function upsertUserRaceGoal(userId: string, goal: RaceGoal | null):
     return;
   }
   await sql`
-    INSERT INTO user_race_goals (user_id, distance, race_date, target_time_sec, updated_at)
+    INSERT INTO user_race_goals (user_id, distance, race_date, target_time_sec, name, updated_at)
     VALUES (
       ${userId}::uuid,
       ${goal.distance},
       ${goal.date}::date,
       ${goal.targetTimeSec ?? null},
+      ${goal.name?.trim() || null},
       NOW()
     )
     ON CONFLICT (user_id) DO UPDATE SET
       distance = EXCLUDED.distance,
       race_date = EXCLUDED.race_date,
       target_time_sec = EXCLUDED.target_time_sec,
+      name = EXCLUDED.name,
       updated_at = NOW()
   `;
 }

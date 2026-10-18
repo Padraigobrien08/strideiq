@@ -12,6 +12,7 @@ export function coachUrl(
   if (params?.source) sp.set("source", params.source);
   if (params?.date) sp.set("date", params.date);
   if (params?.activity) sp.set("activity", params.activity);
+  if (params?.workout) sp.set("workout", params.workout);
   const qs = sp.toString();
   return qs ? `/coach?${qs}` : "/coach";
 }
