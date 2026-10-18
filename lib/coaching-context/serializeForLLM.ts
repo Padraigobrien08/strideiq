@@ -116,7 +116,7 @@ export function serializeCoachingContextForLLM(
       `Primary focus: ${s.primaryFocus}`,
       `Fatigue: ${s.fatigueState} · Durability: ${s.durability} · Specificity: ${s.specificity} · Intensity balance: ${s.intensityBalance}`,
       s.readiness != null ? `Readiness score: ${s.readiness}` : "",
-      s.freshness != null ? `Freshness: ${s.freshness}` : "",
+      `Training load balance: ${s.trainingLoadBalance.reading}`,
       s.reportedLegFeel ? `Reported legs today: ${s.reportedLegFeel}` : "",
     ]),
   );

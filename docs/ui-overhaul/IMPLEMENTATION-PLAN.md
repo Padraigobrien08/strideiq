@@ -93,6 +93,7 @@ The overhaul should recompose existing domain logic rather than replace it.
 - Retain the current hooks and `buildHomeOperatingSystemView` where data remains valid.
 - Replace the stacked console with the 65/35 daily briefing composition.
 - Build explicit variants for planned run, rest day, no plan, past goal, no race and readiness exception.
+- Drive the readiness exception from `todayLoadImpact` (`lib/training/loadBalanceImpact.ts`): show the training load balance only when `affects` is true, stating what changed (`actual` vs `withoutLoad`, `direction`), its `evidence`, the recommendation and an Ask Coach action (SPEC §6.7). Remove the routine freshness tiles. This is load-balance phase 3b.
 - Derive duration and target pace from structured plan fields; do not infer display values in prose.
 - Move recent-change feed and generic risks/opportunities off Today into Progress/Intelligence.
 - Link race outlook to Progress and the week link to Training.
@@ -176,6 +177,7 @@ The overhaul should recompose existing domain logic rather than replace it.
 - Implement adaptive detail: concise healthy state, expanded uncertainty/at-risk explanation.
 - Preserve `/intelligence` as the deeper belief/evidence model and link it from Projection details or full analysis.
 - Treat CTL/ATL/TSB and other training analytics as supporting detail, not the overview headline.
+- Load-balance phase 3b: deeper surfaces (training load panel, training-state hero, Intelligence) always show the balance, labelled "training load balance", with its confidence and a "Not enough evidence" state from `fatigue.loadEvidence` ("about four weeks of runs establishes it"). Reword the remaining user-facing "freshness" copy in `lib/` (insights, narratives, Coach observations) as each surface is rebuilt; internal identifiers stay until phase 4.
 
 ### Required honesty rules
 
@@ -217,6 +219,7 @@ The overhaul should recompose existing domain logic rather than replace it.
 - Define a typed `CoachSourceContext` for Today, Training, Activity and Progress entry points.
 - Store context metadata with threads so history remains attached to its source object.
 - Keep simple context in the banner; use a side panel for proposals and deeper review.
+- Show the training load balance in Coach's context rail and mini-context only when `todayLoadImpact(...).affects` is true; Coach's own wording already follows `trainingLoadBalance` (load-balance phase 3a).
 - Convert weekly plan responses into explicit proposal state; do not save on generation.
 - Define a typed proposal/diff model with original, proposed, changed fields and downstream impact.
 - Add direct controls for day, session type, distance/duration and target effort.

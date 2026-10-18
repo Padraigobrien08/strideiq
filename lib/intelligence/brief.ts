@@ -6,6 +6,8 @@ import { buildTrainingPageView } from "@/lib/training/viewModels";
 import type { RaceGoal } from "@/lib/analytics/readiness";
 import { formatDuration, formatKmRange } from "@/lib/utils";
 import type { IntelligenceBrief } from "./types";
+import { trainingLoadBalancePayload } from "./loadBalancePayload";
+import { todayLoadImpact } from "@/lib/training/loadBalanceImpact";
 
 export function buildIntelligenceBrief(
   analytics: DashboardInsights,
@@ -54,9 +56,13 @@ export function buildIntelligenceBrief(
       largestRisk: goals.risks[0]?.title ?? goals.hero.biggestLimiter,
     },
     fatigue: {
-      freshness: analytics.fatigue.freshness,
+      freshness: analytics.fatigue.loadEvidence.sufficient ? analytics.fatigue.freshness : null,
       label: analytics.fatigue.label,
-      tsb: analytics.fatigue.tsb,
+      tsb: analytics.fatigue.loadEvidence.sufficient ? analytics.fatigue.tsb : null,
+      trainingLoadBalance: trainingLoadBalancePayload(
+        analytics.fatigue,
+        todayLoadImpact(analytics),
+      ),
     },
     weekPlan: {
       weekLabel: plan.weekLabel,
