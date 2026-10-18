@@ -14,6 +14,8 @@ import Link from "next/link";
 import { intelligenceUrl } from "@/lib/coach/domainLinks";
 import { parseCoachSource, SOURCE_LABELS, type CoachSourceParams } from "@/lib/coach/sourceContext";
 import { format, parseISO } from "date-fns";
+import { useTrainingCalendar } from "@/hooks/use-training-calendar";
+import { currentWeekStart } from "@/lib/today/todayView";
 
 export function CoachReasoningWorkspace({
   disabled,
@@ -173,15 +175,20 @@ export function CoachReasoningWorkspace({
  * attaches the entity itself and its thread history.
  */
 function CoachSourceLine({ source }: { source: CoachSourceParams }) {
-  const detail = source.date
-    ? format(parseISO(source.date), "EEE d MMM")
-    : source.activity
-      ? "this run"
-      : null;
+  // Today's planned session, by id, from this week's saved plan (TODAY-06): the line
+  // names the session Coach was asked about rather than only the page.
+  const calendar = useTrainingCalendar(currentWeekStart());
+  const session = source.workout
+    ? calendar.savedWeek?.workouts.find((w) => w.id === source.workout)?.title
+    : undefined;
+  const detail = [
+    source.date ? format(parseISO(source.date), "EEE d MMM") : null,
+    session ?? (source.activity ? "this run" : null),
+  ].filter(Boolean);
   return (
     <p className="shrink-0 border-b border-white/[0.04] px-4 py-1.5 text-[12px] text-zinc-400">
       Opened from <span className="font-medium text-zinc-200">{SOURCE_LABELS[source.source]}</span>
-      {detail ? <span className="text-zinc-500"> · {detail}</span> : null}
+      {detail.length ? <span className="text-zinc-500"> · {detail.join(" · ")}</span> : null}
     </p>
   );
 }

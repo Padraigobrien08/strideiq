@@ -5,7 +5,7 @@ import { join } from "node:path";
 /**
  * Every surface must be reachable by clicking.
  *
- * `components/nav.tsx` carries five destinations on purpose and sends the rest to depth,
+ * `components/nav.tsx` carries three destinations on purpose and sends the rest to depth,
  * which is a defensible console layout — but it only works if the depth is actually
  * linked from somewhere. It was not: `/training`, `/report` and `/context` had no inbound
  * link anywhere in the app, and `/performance` was linked only from `/training`, which
@@ -25,19 +25,24 @@ function sourceOf(...parts: string[]): string {
 }
 
 describe("depth surfaces are reachable by clicking, not only by ⌘K", () => {
-  const home = sourceOf("components", "home", "console", "home-console.tsx");
+  // Overhaul Phase 2: Today is a focused prescription, and the depth links moved to the
+  // surfaces that own them — Today points to Training and Progress, and Progress's
+  // "Full analysis" carries the analytics pages.
+  const today = [
+    sourceOf("components", "home", "today", "today-page.tsx"),
+    sourceOf("components", "home", "today", "race-outlook.tsx"),
+  ].join("\n");
+  const progress = sourceOf("app", "progress", "page.tsx");
 
-  it("links Home to the training load detail", () => {
-    expect(home).toMatch(/href="\/training"/);
+  it("links Today to the week and to the projection", () => {
+    expect(today).toMatch(/href="\/plan"/);
+    expect(today).toMatch(/href="\/progress"/);
   });
 
-  it("links the change feed to the printable report", () => {
-    expect(home).toMatch(/href="\/report"/);
-  });
-
-  it("keeps the existing race drill-in", () => {
-    // Guards against a refactor quietly dropping the one link that already worked.
-    expect(home).toMatch(/href="\/goals"/);
+  it("links Progress to every analysis page that left the top nav", () => {
+    for (const href of ["/intelligence", "/performance", "/training", "/report"]) {
+      expect(progress).toContain(`href="${href}"`);
+    }
   });
 
   it("reaches performance from the training page", () => {
