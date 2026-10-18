@@ -1,10 +1,17 @@
 import type { CoachingDomain } from "./types";
+import type { CoachSourceParams } from "./sourceContext";
 
-export function coachUrl(params?: { domain?: string; q?: string; investigate?: boolean }): string {
+export function coachUrl(
+  params?: { domain?: string; q?: string; investigate?: boolean } & Partial<CoachSourceParams>,
+): string {
   const sp = new URLSearchParams();
   if (params?.domain) sp.set("domain", params.domain);
   if (params?.q) sp.set("q", params.q);
   if (params?.investigate) sp.set("investigate", "1");
+  // Source context: a kind and ids only, never metrics (see ./sourceContext).
+  if (params?.source) sp.set("source", params.source);
+  if (params?.date) sp.set("date", params.date);
+  if (params?.activity) sp.set("activity", params.activity);
   const qs = sp.toString();
   return qs ? `/coach?${qs}` : "/coach";
 }

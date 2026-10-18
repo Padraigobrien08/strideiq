@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import {
-  LayoutDashboard,
   CalendarRange,
   Brain,
   MessageCircle,
@@ -21,6 +20,8 @@ import {
   LogOut,
   RefreshCw,
   CornerDownLeft,
+  Sun,
+  Target,
   type LucideIcon,
 } from "lucide-react";
 import { useThemeStore } from "@/stores/theme-store";
@@ -51,37 +52,31 @@ type RouteEntry = {
   keywords?: string;
 };
 
-// "Go to" mirrors the five-item top nav. "Analysis & tools" holds the depth
-// surfaces that were pulled out of the chrome: they stay fully reachable here
-// and by drilling into Home tiles, just not as always-visible nav.
+// "Go to" mirrors the three-item top nav plus the Ask Coach action. "Analysis & tools"
+// holds every deeper or compatibility route, so none of them loses its way in when it
+// leaves the top nav: Activities and Intelligence moved out of the chrome in overhaul
+// Phase 1, and Plan/Home keep their old names as keywords.
 const ROUTES: RouteEntry[] = [
   {
     href: "/home",
-    label: "Home",
-    icon: LayoutDashboard,
+    label: "Today",
+    icon: Sun,
     group: "Go to",
-    keywords: "dashboard command briefing",
+    keywords: "home dashboard session daily briefing",
   },
   {
     href: "/plan",
-    label: "Plan",
+    label: "Training",
     icon: CalendarRange,
     group: "Go to",
-    keywords: "week training schedule goal race",
+    keywords: "plan week schedule calendar",
   },
   {
-    href: "/runs",
-    label: "Activities",
-    icon: Footprints,
+    href: "/progress",
+    label: "Progress",
+    icon: Target,
     group: "Go to",
-    keywords: "runs sessions history explore",
-  },
-  {
-    href: "/intelligence",
-    label: "Intelligence",
-    icon: Brain,
-    group: "Go to",
-    keywords: "belief model insights",
+    keywords: "goal race forecast projection on track",
   },
   {
     href: "/coach",
@@ -89,6 +84,20 @@ const ROUTES: RouteEntry[] = [
     icon: MessageCircle,
     group: "Go to",
     keywords: "chat ask investigate why",
+  },
+  {
+    href: "/runs",
+    label: "Activities",
+    icon: Footprints,
+    group: "Analysis & tools",
+    keywords: "runs sessions history explore",
+  },
+  {
+    href: "/intelligence",
+    label: "Intelligence",
+    icon: Brain,
+    group: "Analysis & tools",
+    keywords: "belief model insights",
   },
   {
     href: "/performance",
@@ -99,7 +108,7 @@ const ROUTES: RouteEntry[] = [
   },
   {
     href: "/training",
-    label: "Training",
+    label: "Training load",
     icon: Dumbbell,
     group: "Analysis & tools",
     keywords: "load intensity distribution phase am i training",
