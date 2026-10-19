@@ -32,9 +32,13 @@ vi.mock("@/lib/db/leg-feel", () => ({
 
 const getUserPreferences = vi.fn();
 const saveUserPreferences = vi.fn();
+const upsertUserSettings = vi.fn();
+const upsertUserRaceGoal = vi.fn();
 vi.mock("@/lib/db/user-preferences", () => ({
   getUserPreferences: (...a: unknown[]) => getUserPreferences(...a),
   saveUserPreferences: (...a: unknown[]) => saveUserPreferences(...a),
+  upsertUserSettings: (...a: unknown[]) => upsertUserSettings(...a),
+  upsertUserRaceGoal: (...a: unknown[]) => upsertUserRaceGoal(...a),
 }));
 
 const getSavedWeeks = vi.fn();
@@ -62,6 +66,8 @@ beforeEach(() => {
     getLegFeel,
     getUserPreferences,
     saveUserPreferences,
+    upsertUserSettings,
+    upsertUserRaceGoal,
     getSavedWeeks,
     upsertSavedWeek,
     deleteSavedWeek,
@@ -133,6 +139,23 @@ describe("POST /api/me/preferences", () => {
     const res = await POST(post("/api/me/preferences", "nope", true));
     expect(res.status).toBeGreaterThanOrEqual(400);
     expect(saveUserPreferences).not.toHaveBeenCalled();
+  });
+
+  it("accepts a race name and rejects one that is blank or too long", async () => {
+    const { POST } = await import("../me/preferences/route");
+    const goal = { distance: "hm", date: "2026-12-20" };
+    const ok = await POST(
+      post("/api/me/preferences", { raceGoal: { ...goal, name: "Edinburgh Half Marathon" } }),
+    );
+    expect(ok.status).toBe(200);
+    expect(upsertUserRaceGoal.mock.calls[0]?.[1]).toMatchObject({
+      name: "Edinburgh Half Marathon",
+    });
+    for (const name of ["   ", "x".repeat(61)]) {
+      const res = await POST(post("/api/me/preferences", { raceGoal: { ...goal, name } }));
+      expect(res.status, JSON.stringify(name)).toBeGreaterThanOrEqual(400);
+      expect(res.status, JSON.stringify(name)).toBeLessThan(500);
+    }
   });
 
   it("rejects a structurally invalid payload", async () => {

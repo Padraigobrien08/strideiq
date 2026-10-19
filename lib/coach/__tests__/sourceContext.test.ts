@@ -57,3 +57,21 @@ describe("parseCoachSource", () => {
     expect(parseCoachSource(params("q=hello"))).toBeNull();
   });
 });
+
+describe("today's session context (overhaul Phase 2)", () => {
+  it("carries the planned workout id with the date", () => {
+    const url = coachUrl({ source: "today", date: "2026-10-18", workout: "w-2026-10-18" });
+    expect(parseCoachSource(params(url.split("?")[1]))).toEqual({
+      source: "today",
+      date: "2026-10-18",
+      workout: "w-2026-10-18",
+    });
+  });
+
+  it("drops a workout id that is malformed or on another kind", () => {
+    expect(parseCoachSource(params("source=today&workout=" + encodeURIComponent("<b>")))).toEqual({
+      source: "today",
+    });
+    expect(parseCoachSource(params("source=progress&workout=w-1"))).toEqual({ source: "progress" });
+  });
+});

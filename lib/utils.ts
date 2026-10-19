@@ -72,6 +72,17 @@ export function formatDuration(seconds: number): string {
   return `${m}m ${s}s`;
 }
 
+/** Race clock time, "1:40:00" or "24:30" — not the analytics "1h 40m" style. */
+export function formatRaceTime(sec: number): string {
+  if (!Number.isFinite(sec) || sec <= 0) return formatDuration(sec);
+  const s = Math.round(sec);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const r = s % 60;
+  const mm = String(m).padStart(h > 0 ? 2 : 1, "0");
+  return h > 0 ? `${h}:${mm}:${String(r).padStart(2, "0")}` : `${mm}:${String(r).padStart(2, "0")}`;
+}
+
 export function parseNum(value: string | undefined): number | null {
   if (value === undefined || value === null || value.trim() === "") return null;
   const n = Number(value);

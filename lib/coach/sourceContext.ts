@@ -19,6 +19,8 @@ export interface CoachSourceParams {
   date?: string;
   /** Strava activity id, for `activity`. */
   activity?: string;
+  /** Saved-calendar workout id, for `today` when it follows the plan. */
+  workout?: string;
 }
 
 const KINDS: ReadonlySet<string> = new Set<CoachSourceKind>([
@@ -29,6 +31,7 @@ const KINDS: ReadonlySet<string> = new Set<CoachSourceKind>([
 ]);
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const ACTIVITY_ID = /^[A-Za-z0-9_-]{1,64}$/;
+const WORKOUT_ID = /^[A-Za-z0-9_:.-]{1,96}$/;
 
 export const SOURCE_LABELS: Record<CoachSourceKind, string> = {
   today: "Today",
@@ -69,9 +72,11 @@ export function parseCoachSource(params: {
   const kind = source as CoachSourceKind;
   const date = params.get("date");
   const activity = params.get("activity");
+  const workout = params.get("workout");
   return {
     source: kind,
     ...(kind === "today" && date && ISO_DATE.test(date) ? { date } : {}),
+    ...(kind === "today" && workout && WORKOUT_ID.test(workout) ? { workout } : {}),
     ...(kind === "activity" && activity && ACTIVITY_ID.test(activity) ? { activity } : {}),
   };
 }

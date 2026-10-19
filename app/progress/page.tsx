@@ -34,6 +34,9 @@ export default function ProgressPage() {
           <Link href="/training" className="font-medium text-accent hover:underline">
             Training load
           </Link>
+          <Link href="/report" className="font-medium text-accent hover:underline">
+            Report
+          </Link>
         </nav>
       </div>
     </RequireData>

@@ -6,6 +6,16 @@ export interface RaceGoal {
   distance: RaceDistance;
   date: string;
   targetTimeSec?: number;
+  /** The athlete's name for the race, e.g. "Edinburgh Half Marathon" (≤ 60 chars). */
+  name?: string;
+}
+
+export const RACE_NAME_MAX_LENGTH = 60;
+
+/** What to call a race: its name when set, the distance otherwise. */
+export function raceDisplayName(goal: Pick<RaceGoal, "distance" | "name">): string {
+  const name = goal.name?.trim();
+  return name ? name : RACE_DISTANCE_LABELS[goal.distance];
 }
 
 export const RACE_DISTANCE_LABELS: Record<RaceDistance, string> = {

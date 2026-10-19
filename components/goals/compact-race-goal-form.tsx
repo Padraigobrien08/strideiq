@@ -13,9 +13,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useGoalStore } from "@/stores/goal-store";
-import { RACE_DISTANCE_LABELS, type RaceDistance, type RaceGoal } from "@/lib/analytics/readiness";
+import {
+  RACE_DISTANCE_LABELS,
+  RACE_NAME_MAX_LENGTH,
+  raceDisplayName,
+  type RaceDistance,
+  type RaceGoal,
+} from "@/lib/analytics/readiness";
 import { ChevronDown } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatRaceTime } from "@/lib/utils";
 
 const DISTANCES: RaceDistance[] = ["5k", "10k", "hm", "marathon"];
 
@@ -54,7 +60,12 @@ export function CompactRaceGoalForm() {
     () =>
       raceGoal?.date ?? new Date(Date.now() + 56 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
   );
-  const [targetTime, setTargetTime] = useState("");
+  // Pre-filled from the saved goal. The target used to start empty, so re-saving a goal
+  // (say, to move its date) silently dropped the target time.
+  const [targetTime, setTargetTime] = useState(() =>
+    raceGoal?.targetTimeSec ? formatRaceTime(raceGoal.targetTimeSec) : "",
+  );
+  const [name, setName] = useState(raceGoal?.name ?? "");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -62,6 +73,8 @@ export function CompactRaceGoalForm() {
     const goal: RaceGoal = { distance, date };
     const targetTimeSec = parseTargetTime(targetTime);
     if (targetTimeSec) goal.targetTimeSec = targetTimeSec;
+    const trimmedName = name.trim();
+    if (trimmedName) goal.name = trimmedName;
     setRaceGoal(goal);
     setOpen(false);
   };
@@ -84,8 +97,7 @@ export function CompactRaceGoalForm() {
           Race mission setup
           {raceGoal ? (
             <span className="ml-2 font-normal normal-case text-accent/80">
-              {RACE_DISTANCE_LABELS[raceGoal.distance]} ·{" "}
-              {new Date(raceGoal.date).toLocaleDateString()}
+              {raceDisplayName(raceGoal)} · {new Date(raceGoal.date).toLocaleDateString()}
             </span>
           ) : null}
         </span>
@@ -98,6 +110,19 @@ export function CompactRaceGoalForm() {
           onSubmit={handleSubmit}
           className="grid gap-3 border-t border-white/[0.04] px-4 py-4 sm:grid-cols-4"
         >
+          <div className="space-y-2 sm:col-span-4">
+            <Label htmlFor="compact-race-name" className="text-xs text-zinc-500">
+              Race name (optional)
+            </Label>
+            <Input
+              id="compact-race-name"
+              type="text"
+              value={name}
+              maxLength={RACE_NAME_MAX_LENGTH}
+              placeholder="Edinburgh Half Marathon"
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
           <div className="space-y-2">
             <Label className="text-xs text-zinc-500">Distance</Label>
             <Select value={distance} onValueChange={(v) => setDistance(v as RaceDistance)}>

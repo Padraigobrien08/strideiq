@@ -6,7 +6,7 @@ import {
   upsertUserRaceGoal,
   upsertUserSettings,
 } from "@/lib/db/user-preferences";
-import type { RaceGoal } from "@/lib/analytics/readiness";
+import { RACE_NAME_MAX_LENGTH, type RaceGoal } from "@/lib/analytics/readiness";
 import { z } from "zod";
 
 const bodySchema = z.object({
@@ -17,6 +17,7 @@ const bodySchema = z.object({
       distance: z.enum(["5k", "10k", "hm", "marathon"]),
       date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
       targetTimeSec: z.number().int().positive().optional(),
+      name: z.string().trim().min(1).max(RACE_NAME_MAX_LENGTH).optional(),
     })
     .nullable()
     .optional(),

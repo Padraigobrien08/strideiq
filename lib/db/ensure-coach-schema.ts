@@ -23,5 +23,10 @@ export async function ensureCoachSchema(): Promise<void> {
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `;
+  // 010_race_goal_name.sql, for databases created by this function rather than migrations.
+  await sql`
+    ALTER TABLE user_race_goals
+      ADD COLUMN IF NOT EXISTS name TEXT CHECK (name IS NULL OR char_length(name) BETWEEN 1 AND 60)
+  `;
   ensured = true;
 }
