@@ -345,7 +345,8 @@ export function PlanWorkspace() {
   const histCount = calendar.savedWeek ? historyCount(calendar.savedWeek.weekStart) : 0;
 
   return (
-    <div className="plan-workspace space-y-3 pb-10">
+    // Capped and centred on wide screens (viewport contract rule 5).
+    <div data-content-cap className="plan-workspace mx-auto w-full max-w-[1360px] space-y-3 pb-10">
       <PlanHeader
         eyebrow={weekEyebrow(viewWeekStart)}
         title={weekView?.rangeLabel ?? weekRange}
@@ -502,7 +503,7 @@ export function PlanWorkspace() {
       ) : null}
 
       {displayWeek && weekView ? (
-        <div className="space-y-8 pt-2">
+        <div className="space-y-6 pt-1">
           <WeekStrip
             days={weekView.days}
             selectedDate={weekView.selected.date}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Copy, Loader2, MessageCircle, RefreshCw, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConfidenceBadge } from "@/components/confidence-badge";
@@ -71,17 +71,19 @@ export function PlanHeader({
         {summary ?? (
           <p className="font-mono text-[13px] tabular-nums text-muted-foreground">{weekRange}</p>
         )}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Status, phase, confidence and goal share one row, keeping the week's own
+            content higher on the first screen (viewport contract rule 4). */}
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
           <StatusBadge status={status} label={statusLabel} />
           <span className="text-[11px] text-zinc-600">{phaseLabel}</span>
           <ConfidenceBadge level={confidence} />
+          {goalContext ? (
+            <span className="text-[12px] text-zinc-500">
+              <span className="text-zinc-600">Goal: </span>
+              {goalContext}
+            </span>
+          ) : null}
         </div>
-        {goalContext ? (
-          <p className="text-[12px] text-zinc-500">
-            <span className="text-zinc-600">Goal: </span>
-            {goalContext}
-          </p>
-        ) : null}
         {status === "saved_with_preview" && onViewPreview ? (
           <div className="flex flex-wrap gap-2 text-[11px]">
             <button
@@ -136,37 +138,41 @@ export function PlanHeader({
             Refine in Coach
           </Button>
         </Link>
-        {onDuplicate && hasSaved ? (
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-8 gap-1 text-xs text-zinc-500"
-            onClick={onDuplicate}
-          >
-            <Copy className="h-3 w-3" />
-            Duplicate
-          </Button>
-        ) : null}
-        {canRevert ? (
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-8 text-xs text-zinc-500"
-            onClick={onRevert}
-          >
-            Revert
-          </Button>
-        ) : null}
-        {hasSaved ? (
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-8 gap-1 text-xs text-zinc-600"
-            onClick={onClear}
-          >
-            <Trash2 className="h-3 w-3" />
-            Clear
-          </Button>
+        {hasSaved || canRevert ? (
+          <MoreActions>
+            {onDuplicate && hasSaved ? (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-8 gap-1 text-xs text-zinc-500"
+                onClick={onDuplicate}
+              >
+                <Copy className="h-3 w-3" />
+                Duplicate
+              </Button>
+            ) : null}
+            {canRevert ? (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-8 text-xs text-zinc-500"
+                onClick={onRevert}
+              >
+                Revert
+              </Button>
+            ) : null}
+            {hasSaved ? (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-8 gap-1 text-xs text-zinc-600"
+                onClick={onClear}
+              >
+                <Trash2 className="h-3 w-3" />
+                Clear
+              </Button>
+            ) : null}
+          </MoreActions>
         ) : null}
       </div>
     </header>
@@ -200,5 +206,29 @@ function StatusBadge({ status, label }: { status: PlanHeaderStatus; label: strin
       ) : null}
       {label}
     </span>
+  );
+}
+
+/**
+ * Duplicate, Revert and Clear: inline from `sm` up; on phones behind "More", so the
+ * header leaves room for the week (viewport contract rule 4).
+ */
+function MoreActions({ children }: { children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button
+        size="sm"
+        variant="ghost"
+        className="h-8 text-xs text-zinc-500 sm:hidden"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+      >
+        {open ? "Less" : "More"}
+      </Button>
+      <div className={cn("w-full flex-wrap gap-1.5 sm:flex sm:w-auto", open ? "flex" : "hidden")}>
+        {children}
+      </div>
+    </>
   );
 }

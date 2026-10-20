@@ -89,11 +89,11 @@ export function CompactRaceGoalForm() {
         render={
           <Button
             variant="ghost"
-            className="flex h-auto w-full items-center justify-between gap-2 rounded-xl px-4 py-3 text-left font-normal hover:bg-white/[0.02]"
+            className="flex h-auto w-full items-center justify-between gap-2 whitespace-normal rounded-xl px-4 py-3 text-left font-normal hover:bg-white/[0.02]"
           />
         }
       >
-        <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+        <span className="min-w-0 text-xs font-semibold uppercase tracking-wider text-zinc-500">
           Race mission setup
           {raceGoal ? (
             <span className="ml-2 font-normal normal-case text-accent/80">

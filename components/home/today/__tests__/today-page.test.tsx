@@ -162,4 +162,19 @@ describe("Today", () => {
       "/training",
     );
   });
+
+  it("keeps the race status by the date on phones, linking to the projection (rule 2)", () => {
+    render(<TodayPage view={runView()} />);
+    const chip = screen.getByRole("link", { name: /^Race status:/ });
+    expect(chip).toHaveAccessibleName(
+      "Race status: Edinburgh Half Marathon, On track, 62 days to go",
+    );
+    expect(chip).toHaveAttribute("href", "/progress");
+    expect(chip.className).toMatch(/lg:hidden/);
+  });
+
+  it("caps its width on wide screens (rule 5)", () => {
+    const { container } = render(<TodayPage view={runView()} />);
+    expect(container.querySelector("[data-content-cap]")?.className).toMatch(/max-w-\[1360px\]/);
+  });
 });
