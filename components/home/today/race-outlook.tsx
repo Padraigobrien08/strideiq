@@ -21,6 +21,37 @@ const STATUS_STYLE: Record<RaceStatus, { icon: typeof CheckCircle2; className: s
   },
 };
 
+/**
+ * Status and days to race in one chip: the outlook's headline where the full outlook
+ * sits below the fold (Today on phones and tablets). Links to the projection.
+ */
+export function RaceStatusChip({
+  outlook,
+  className,
+}: {
+  outlook: TodayRaceOutlook;
+  className?: string;
+}) {
+  const status = outlook.status;
+  const style = status ? STATUS_STYLE[status.status] : null;
+  const days = `${outlook.daysToRace} ${outlook.daysToRace === 1 ? "day" : "days"}`;
+  return (
+    <Link
+      href="/progress"
+      aria-label={`Race status: ${outlook.name}, ${status ? `${status.label}, ` : ""}${days} to go`}
+      className={cn(
+        "inline-flex min-h-8 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-semibold",
+        style ? style.className : "bg-[var(--surface)] text-muted-foreground",
+        className,
+      )}
+    >
+      {style ? <style.icon className="h-3.5 w-3.5" aria-hidden /> : null}
+      {status ? `${status.label} · ` : ""}
+      {days}
+    </Link>
+  );
+}
+
 export function RaceOutlook({ outlook }: { outlook: TodayRaceOutlook }) {
   const status = outlook.status;
   const style = status ? STATUS_STYLE[status.status] : null;

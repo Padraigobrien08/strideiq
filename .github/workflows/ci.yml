@@ -133,3 +133,27 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run test:time-travel
+
+  # Viewport contract (e2e/viewport.spec.ts): layout rules checked in a real browser
+  # against the production build at phone, tablet and laptop sizes — no sideways
+  # scroll, Today's answer on the first screen, Today fitting one laptop screen,
+  # Training's selected day above the fold. The HTML report carries a first-screen
+  # screenshot of every page at every size, uploaded even when the suite passes.
+  viewport:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps --only-shell chromium
+      - run: npm run build
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: viewport-report
+          path: playwright-report/
+          retention-days: 14

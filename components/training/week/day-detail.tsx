@@ -20,7 +20,7 @@ export function DayDetail({ detail }: { detail: DayDetailView }) {
       id={DAY_DETAIL_ID}
       aria-labelledby="training-day-title"
       aria-live="polite"
-      className="grid gap-y-8 border-t border-[var(--border-subtle)] pt-8 lg:grid-cols-[minmax(0,65fr)_minmax(0,35fr)]"
+      className="grid gap-y-8 border-t border-[var(--border-subtle)] pt-6 lg:grid-cols-[minmax(0,65fr)_minmax(0,35fr)]"
     >
       <div className="min-w-0 lg:pr-12">
         <p className={eyebrow}>{detail.dateLabel}</p>
@@ -91,9 +91,9 @@ export function DayDetail({ detail }: { detail: DayDetailView }) {
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{detail.note}</p>
         ) : null}
 
-        {detail.comparison ? <ComparisonTable comparison={detail.comparison} /> : null}
-
-        <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+        {/* Actions sit with the status, above the comparison, so they stay on the first
+            screen (viewport contract rule 4). */}
+        <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
           {hasRun && detail.activityHref ? (
             <Link
               href={detail.activityHref}
@@ -114,6 +114,8 @@ export function DayDetail({ detail }: { detail: DayDetailView }) {
             Ask Coach
           </Link>
         </div>
+
+        {detail.comparison ? <ComparisonTable comparison={detail.comparison} /> : null}
       </aside>
     </section>
   );

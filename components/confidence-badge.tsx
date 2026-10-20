@@ -14,7 +14,14 @@ export function ConfidenceBadge({ level }: { level: "low" | "medium" | "high" })
   };
 
   return (
-    <Badge variant="outline" className={cn("rounded-full px-3 py-1", colors[level])}>
+    <Badge
+      variant="outline"
+      // Wraps on narrow screens: the medium label alone is ~300px on one line.
+      className={cn(
+        "h-auto max-w-full whitespace-normal rounded-full px-3 py-1 text-left",
+        colors[level],
+      )}
+    >
       {labels[level]}
     </Badge>
   );

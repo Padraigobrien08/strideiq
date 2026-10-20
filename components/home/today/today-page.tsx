@@ -21,7 +21,7 @@ import type {
   TodayView,
 } from "@/lib/today/todayView";
 import { cn } from "@/lib/utils";
-import { RaceOutlook, RecentProgress } from "./race-outlook";
+import { RaceOutlook, RaceStatusChip, RecentProgress } from "./race-outlook";
 import { ReadinessException } from "./readiness-exception";
 
 /**
@@ -41,12 +41,21 @@ export function TodayPage({ view, below }: { view: TodayView; below?: ReactNode 
   });
 
   return (
-    <div className="pb-10">
-      <div className="grid gap-y-10 lg:grid-cols-[minmax(0,65fr)_minmax(0,35fr)] lg:gap-x-0">
+    // Capped and centred on wide screens (viewport contract rule 5), and sized so the
+    // whole page fits one laptop screen of 1280×720 and up (rule 3).
+    <div data-content-cap className="mx-auto w-full max-w-[1360px] pb-6">
+      <div className="grid gap-y-8 lg:grid-cols-[minmax(0,65fr)_minmax(0,35fr)] lg:gap-x-0">
         <section aria-labelledby="today-session" className="min-w-0 lg:pr-12">
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--muted-subtle)]">
-            Today · {view.dateLabel}
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--muted-subtle)]">
+              Today · {view.dateLabel}
+            </p>
+            {/* Phones and tablets put the outlook below the session; the race status
+                still belongs on the first screen (rule 2). */}
+            {view.outlook.kind === "race" ? (
+              <RaceStatusChip outlook={view.outlook} className="lg:hidden" />
+            ) : null}
+          </div>
           {view.session.kind === "run" ? (
             <RunPrescription session={view.session} />
           ) : (
@@ -60,7 +69,7 @@ export function TodayPage({ view, below }: { view: TodayView; below?: ReactNode 
             />
           ) : null}
 
-          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+          <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3 sm:mt-6">
             <Link
               href={askHref}
               className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-5 text-[0.9375rem] font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -102,7 +111,7 @@ export function TodayPage({ view, below }: { view: TodayView; below?: ReactNode 
       </div>
 
       {below ? (
-        <div className="mt-12 space-y-4 border-t border-[var(--border-subtle)] pt-8">{below}</div>
+        <div className="mt-8 space-y-4 border-t border-[var(--border-subtle)] pt-5">{below}</div>
       ) : null}
     </div>
   );
@@ -118,15 +127,18 @@ function RunPrescription({ session }: { session: TodayRunSession }) {
         {session.title}
       </h1>
       <SessionFigures figures={session.figures} />
-      <div className="mt-8 max-w-[65ch] space-y-6 border-t border-[var(--border-subtle)] pt-8">
+      {/* Tighter on phones so the primary action stays on a 375×667 first screen. */}
+      <div className="mt-5 max-w-[65ch] space-y-4 border-t border-[var(--border-subtle)] pt-5 sm:mt-6 sm:space-y-5 sm:pt-6">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">Why today</h2>
-          <p className="mt-2 text-base leading-relaxed text-muted-foreground">{session.why}</p>
+          <h2 className="text-base font-semibold text-foreground sm:text-lg">Why today</h2>
+          <p className="mt-1.5 text-base leading-relaxed text-muted-foreground sm:mt-2">
+            {session.why}
+          </p>
         </div>
         {session.raceRelevance ? (
           <div>
-            <h2 className="text-lg font-semibold text-foreground">Race relevance</h2>
-            <p className="mt-2 text-base leading-relaxed text-muted-foreground">
+            <h2 className="text-base font-semibold text-foreground sm:text-lg">Race relevance</h2>
+            <p className="mt-1.5 text-base leading-relaxed text-muted-foreground sm:mt-2">
               {session.raceRelevance}
             </p>
           </div>
@@ -155,7 +167,7 @@ export function SessionFigures({ figures }: { figures: TodayFigures }) {
   return (
     <div className="mt-6">
       {/* One column on the narrowest phones (320px), where two would clip "45–50 min". */}
-      <dl className="grid grid-cols-1 gap-x-6 gap-y-5 min-[360px]:grid-cols-2 sm:flex sm:flex-wrap sm:gap-x-10">
+      <dl className="grid grid-cols-1 gap-x-6 gap-y-4 min-[360px]:grid-cols-2 sm:flex sm:flex-wrap sm:gap-x-10 sm:gap-y-5">
         {items.map(({ icon: Icon, label, value, wide }) => (
           <div
             key={label}

@@ -13,6 +13,10 @@ node_modules/
 
 # testing
 /coverage
+# Playwright viewport suite (e2e/): saved demo state, run output and the HTML report
+/e2e/.state/
+/test-results/
+/playwright-report/
 
 # next.js
 /.next/

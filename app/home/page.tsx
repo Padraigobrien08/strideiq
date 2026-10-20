@@ -70,14 +70,17 @@ export default function HomePage() {
           below={
             <>
               {analytics.returning ? <ReturningCard plan={analytics.returning} /> : null}
-              <LegFeelCard />
-              <TodaySourceStatus
-                apiConnected={apiConnected}
-                dataSourceLabel={dataSourceLabel}
-                syncing={syncing || loading}
-                syncError={error}
-                onSync={() => void handleSync()}
-              />
+              {/* One row: leg feel and the data source, kept out of the way of the answer. */}
+              <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3">
+                <LegFeelCard compact />
+                <TodaySourceStatus
+                  apiConnected={apiConnected}
+                  dataSourceLabel={dataSourceLabel}
+                  syncing={syncing || loading}
+                  syncError={error}
+                  onSync={() => void handleSync()}
+                />
+              </div>
             </>
           }
         />

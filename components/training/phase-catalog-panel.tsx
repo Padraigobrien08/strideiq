@@ -61,11 +61,14 @@ export function PhaseCatalogPanel({ phases }: { phases: TrainingPhase[] }) {
           .slice()
           .reverse()
           .map((p, i) => (
-            <li key={i} className="flex items-baseline gap-2.5 text-xs">
+            <li key={i} className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5 text-xs">
               <span className={cn("mt-1 h-2 w-2 shrink-0 rounded-full", dot[p.type])} />
               <span className="w-20 shrink-0 font-medium text-zinc-300">{p.label}</span>
               <span className="w-28 shrink-0 font-mono tabular-nums text-zinc-600">{span(p)}</span>
-              <span className="text-zinc-500">{p.characterization}</span>
+              {/* Own line on phones, where the fixed columns leave it ~60px. */}
+              <span className="min-w-0 basis-full pl-[1.125rem] text-zinc-500 sm:flex-1 sm:basis-auto sm:pl-0">
+                {p.characterization}
+              </span>
             </li>
           ))}
       </ul>

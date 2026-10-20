@@ -147,3 +147,21 @@ describe("an existing niggle", () => {
     expect(screen.queryByRole("button", { name: /flag a niggle/i })).not.toBeInTheDocument();
   });
 });
+
+describe("Today's compact row (overhaul Phase 2 decision)", () => {
+  it("sends exactly what the card sends", async () => {
+    render(<LegFeelCard compact />);
+    await userEvent.click(within(feelGroup()).getByRole("button", { name: "Fresh" }));
+    expect(setFeel).toHaveBeenCalledWith("fresh");
+    await userEvent.click(screen.getByRole("button", { name: /flag a niggle/i }));
+    await userEvent.click(screen.getByRole("button", { name: "Calf" }));
+    expect(setFeel).toHaveBeenLastCalledWith("normal", "morning", {
+      niggle: { area: "Calf", severity: 2 },
+    });
+  });
+
+  it("is a labelled region, not a card", () => {
+    render(<LegFeelCard compact />);
+    expect(screen.getByRole("region", { name: "How do the legs feel?" })).toBeInTheDocument();
+  });
+});

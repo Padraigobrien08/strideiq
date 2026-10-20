@@ -10,7 +10,15 @@ const alias = { "@": path.resolve(__dirname, ".") };
 // `.eval/` is the same hazard from the other direction: it is a git-ignored scratch
 // area, so a throwaway probe written as a `.test.ts` joins `npm run check` locally
 // while being invisible in CI and to everyone else.
-const exclude = ["**/node_modules/**", "**/dist/**", "**/.next/**", "**/.claude/**", "**/.eval/**"];
+// e2e/ is Playwright's (npm run test:e2e); its *.spec.ts would match Vitest's default.
+const exclude = [
+  "**/node_modules/**",
+  "**/dist/**",
+  "**/.next/**",
+  "**/.claude/**",
+  "**/.eval/**",
+  "e2e/**",
+];
 
 // Clock displacement is opt-in via PROBE_NOW and costs nothing when unset — see
 // test/time-travel.ts. Listed first so it runs before any other setup.
