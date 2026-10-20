@@ -148,6 +148,22 @@ export function useTrainingCalendar(weekStart?: string) {
     [targetWeek, scheduleSync],
   );
 
+  /**
+   * Save an edited copy of the week in one step (Training's session editor). Goes
+   * through `saveCalendarWeek`, so the previous version is snapshotted for Revert and
+   * Undo, and syncs to the server like every other change.
+   */
+  const replaceWeek = useCallback(
+    (next: TrainingCalendarWeek) => {
+      saveCalendarWeek(next);
+      const stored = getCalendarWeek(next.weekStart);
+      if (next.weekStart === targetWeek) setSavedWeek(stored ?? next);
+      if (stored) scheduleSync({ type: "put", week: stored });
+      return stored;
+    },
+    [targetWeek, scheduleSync],
+  );
+
   const swapWorkouts = useCallback(
     (fromWorkoutId: string, toWorkoutId: string) => {
       const updated = swapCalendarWorkouts(targetWeek, fromWorkoutId, toWorkoutId);
@@ -173,6 +189,7 @@ export function useTrainingCalendar(weekStart?: string) {
     saveFromGenerated,
     clearWeek,
     patchWorkout,
+    replaceWeek,
     removeWorkout,
     swapWorkouts,
   };
