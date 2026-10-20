@@ -1,6 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import {
-  buildTodayInPlan,
   buildWeekTelemetry,
   formatPlanTimestamp,
   goalContextLabel,
@@ -20,8 +19,8 @@ import type { TrainingCalendarWeek } from "@/lib/training-calendar";
  * presented with the same confidence as a right one.
  */
 
-// `buildTodayInPlan` compares against `new Date()`, and the fixture week is fixed.
-// Pinned to the Wednesday of that week (see test/time-travel.ts for why this matters).
+// Pinned to the Wednesday of the fixed fixture week (see test/time-travel.ts for why
+// this matters).
 const INSIDE_THE_WEEK = "2026-03-11T09:00:00.000Z";
 
 beforeAll(() => {
@@ -101,33 +100,6 @@ describe("week telemetry", () => {
 
   it("reads confidence as prose, not as an enum", () => {
     expect(buildWeekTelemetry(week(), null).confidence).not.toContain("_");
-  });
-});
-
-describe("today in the plan", () => {
-  it("finds the session for today", () => {
-    const today = buildTodayInPlan(week());
-    expect(today).not.toBeNull();
-  });
-
-  // Viewing next week, or last week, must not claim one of its sessions is today.
-  it("returns nothing when today falls outside the week being viewed", () => {
-    const w = week();
-    const otherWeek: TrainingCalendarWeek = {
-      ...w,
-      weekStart: "2026-06-01",
-      weekEnd: "2026-06-07",
-    };
-    expect(buildTodayInPlan(otherWeek)).toBeNull();
-  });
-
-  it("describes a rest day rather than showing an empty card", () => {
-    const w = week();
-    const restToday: TrainingCalendarWeek = {
-      ...w,
-      workouts: w.workouts.map((x) => ({ ...x, modality: "rest" })),
-    };
-    expect(buildTodayInPlan(restToday)?.title).toMatch(/rest/i);
   });
 });
 

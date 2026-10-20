@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import type { Comparison, DayDetail as DayDetailView } from "@/lib/training-week/weekView";
 import { SessionFigures } from "@/components/home/today/today-page";
@@ -13,7 +14,17 @@ const eyebrow = "text-xs font-medium uppercase tracking-[0.18em] text-[var(--mut
  * The selected day (SPEC §7.4). Days still to run show the prescription; days with a
  * logged run show planned against completed, and only for that day (TRAIN-02…04).
  */
-export function DayDetail({ detail }: { detail: DayDetailView }) {
+export function DayDetail({
+  detail,
+  editor,
+  controls,
+}: {
+  detail: DayDetailView;
+  /** The session editor, shown in place of the prescription while editing (Phase 3b). */
+  editor?: ReactNode;
+  /** Edit / mark actions, shown with the status. */
+  controls?: ReactNode;
+}) {
   const hasRun = detail.comparison !== null;
   return (
     <section
@@ -31,48 +42,53 @@ export function DayDetail({ detail }: { detail: DayDetailView }) {
           {detail.title}
         </h2>
 
-        {detail.prescription ? <SessionFigures figures={detail.prescription.figures} /> : null}
+        {editor ?? (
+          <>
+            {detail.prescription ? <SessionFigures figures={detail.prescription.figures} /> : null}
 
-        {detail.prescription?.structure ? (
-          <div className="mt-8 border-t border-[var(--border-subtle)] pt-6">
-            <h3 className="text-lg font-semibold text-foreground">Suggested structure</h3>
-            {detail.prescription.structure.steps ? (
-              <ol className="mt-3 divide-y divide-[var(--border-subtle)]">
-                {detail.prescription.structure.steps.map((step, i) => (
-                  <li
-                    key={step.name}
-                    className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-0.5 py-3 sm:grid-cols-[auto_9rem_6rem_minmax(0,1fr)] sm:items-baseline"
-                  >
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--accent)]/10 text-xs font-semibold text-[var(--accent)]">
-                      {i + 1}
-                    </span>
-                    <span className="font-semibold text-foreground">{step.name}</span>
-                    <span className="col-start-2 text-sm tabular-nums text-foreground sm:col-start-auto">
-                      {step.amount ?? "As planned"}
-                    </span>
-                    <span className="col-start-2 text-sm text-muted-foreground sm:col-start-auto">
-                      {step.effort}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            ) : (
-              <p className="mt-2 text-base text-muted-foreground">
-                {detail.prescription.structure.note}
-              </p>
-            )}
-            <p className="mt-2 text-xs text-[var(--muted-subtle)]">
-              Suggested from the session type and your pace bands; the plan does not store steps.
-            </p>
-          </div>
-        ) : null}
+            {detail.prescription?.structure ? (
+              <div className="mt-8 border-t border-[var(--border-subtle)] pt-6">
+                <h3 className="text-lg font-semibold text-foreground">Suggested structure</h3>
+                {detail.prescription.structure.steps ? (
+                  <ol className="mt-3 divide-y divide-[var(--border-subtle)]">
+                    {detail.prescription.structure.steps.map((step, i) => (
+                      <li
+                        key={step.name}
+                        className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-0.5 py-3 sm:grid-cols-[auto_9rem_6rem_minmax(0,1fr)] sm:items-baseline"
+                      >
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--accent)]/10 text-xs font-semibold text-[var(--accent)]">
+                          {i + 1}
+                        </span>
+                        <span className="font-semibold text-foreground">{step.name}</span>
+                        <span className="col-start-2 text-sm tabular-nums text-foreground sm:col-start-auto">
+                          {step.amount ?? "As planned"}
+                        </span>
+                        <span className="col-start-2 text-sm text-muted-foreground sm:col-start-auto">
+                          {step.effort}
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p className="mt-2 text-base text-muted-foreground">
+                    {detail.prescription.structure.note}
+                  </p>
+                )}
+                <p className="mt-2 text-xs text-[var(--muted-subtle)]">
+                  Suggested from the session type and your pace bands; the plan does not store
+                  steps.
+                </p>
+              </div>
+            ) : null}
 
-        {detail.why ? (
-          <div className="mt-8 max-w-[65ch] border-t border-[var(--border-subtle)] pt-6">
-            <h3 className="text-lg font-semibold text-foreground">Why it&apos;s in the week</h3>
-            <p className="mt-2 text-base leading-relaxed text-muted-foreground">{detail.why}</p>
-          </div>
-        ) : null}
+            {detail.why ? (
+              <div className="mt-8 max-w-[65ch] border-t border-[var(--border-subtle)] pt-6">
+                <h3 className="text-lg font-semibold text-foreground">Why it&apos;s in the week</h3>
+                <p className="mt-2 text-base leading-relaxed text-muted-foreground">{detail.why}</p>
+              </div>
+            ) : null}
+          </>
+        )}
 
         {detail.alsoPlanned.length ? (
           <p className="mt-6 text-sm text-muted-foreground">
@@ -114,6 +130,8 @@ export function DayDetail({ detail }: { detail: DayDetailView }) {
             Ask Coach
           </Link>
         </div>
+
+        {controls}
 
         {detail.comparison ? <ComparisonTable comparison={detail.comparison} /> : null}
       </aside>
