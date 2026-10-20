@@ -60,7 +60,10 @@ describe("primary navigation (NAV-01)", () => {
   it("points Training at the current week and Progress at /progress", () => {
     renderAt("/home");
     const [inline] = mainNavs();
-    expect(within(inline).getByRole("link", { name: "Training" })).toHaveAttribute("href", "/plan");
+    expect(within(inline).getByRole("link", { name: "Training" })).toHaveAttribute(
+      "href",
+      "/training",
+    );
     expect(within(inline).getByRole("link", { name: "Progress" })).toHaveAttribute(
       "href",
       "/progress",
@@ -79,10 +82,10 @@ describe("primary navigation (NAV-01)", () => {
 
   it.each([
     ["/home", "/home"],
-    ["/plan", "/plan"],
-    ["/training", "/plan"],
-    ["/runs/abc/route", "/plan"],
+    ["/training", "/training"],
+    ["/runs/abc/route", "/training"],
     ["/progress", "/progress"],
+    ["/progress/load", "/progress"],
     ["/goals", "/progress"],
     ["/performance", "/progress"],
     ["/intelligence", "/progress"],
@@ -97,7 +100,7 @@ describe("primary navigation (NAV-01)", () => {
 describe("Ask Coach (NAV-03)", () => {
   it.each([
     ["/home", "/coach?source=today"],
-    ["/plan", "/coach?source=training_week"],
+    ["/training", "/coach?source=training_week"],
     ["/runs/12345", "/coach?source=activity&activity=12345"],
     ["/progress", "/coach?source=progress"],
     ["/settings", "/coach"],

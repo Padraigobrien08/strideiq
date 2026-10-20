@@ -40,7 +40,7 @@ export function RaceProjectionPanel({
 
   return (
     <Panel>
-      <PanelHeader title="Race performance projection" href="/plan?tab=goal" action="Open" />
+      <PanelHeader title="Race performance projection" href="/progress" action="Open" />
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(200px,280px)] lg:gap-8">
         <div>
           <div className="flex flex-wrap items-end justify-between gap-3">

@@ -99,7 +99,7 @@ export function IntelligencePage() {
               What StrideIQ currently believes, what changed, and what to investigate
             </p>
             <div className="flex gap-3 font-mono text-[11px]">
-              <Link href="/plan" className="text-zinc-500 hover:text-accent">
+              <Link href="/training" className="text-zinc-500 hover:text-accent">
                 Plan →
               </Link>
               <Link href={coachUrl()} className="text-zinc-500 hover:text-accent">

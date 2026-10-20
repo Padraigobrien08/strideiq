@@ -175,9 +175,11 @@ export function CoachReasoningWorkspace({
  * attaches the entity itself and its thread history.
  */
 function CoachSourceLine({ source }: { source: CoachSourceParams }) {
-  // Today's planned session, by id, from this week's saved plan (TODAY-06): the line
-  // names the session Coach was asked about rather than only the page.
-  const calendar = useTrainingCalendar(currentWeekStart());
+  // The planned session, by id, from the saved week covering its date (TODAY-06, and
+  // Training's selected day): the line names the session rather than only the page.
+  const calendar = useTrainingCalendar(
+    currentWeekStart(source.date ? parseISO(source.date) : undefined),
+  );
   const session = source.workout
     ? calendar.savedWeek?.workouts.find((w) => w.id === source.workout)?.title
     : undefined;

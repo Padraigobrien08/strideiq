@@ -168,7 +168,7 @@ export function CoachContextRail({
               <p className="mt-1 text-[11px] text-zinc-600">This week: {snapshot.weekLabel}</p>
             ) : null}
             <Link
-              href="/plan?tab=goal"
+              href="/progress"
               className="mt-2 inline-block text-[11px] text-accent/90 hover:underline"
             >
               Adjust goal
@@ -176,7 +176,7 @@ export function CoachContextRail({
           </div>
         ) : (
           <p className="text-xs text-zinc-600">
-            <Link href="/plan?tab=goal" className="text-accent/90 hover:underline">
+            <Link href="/progress" className="text-accent/90 hover:underline">
               Set a race goal
             </Link>{" "}
             for race-specific coaching.

@@ -105,7 +105,7 @@ function AskCoachLink({ pathname }: { pathname: string }) {
 
 export function AppWorkspaceShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isHome = pathname === "/home" || pathname === "/plan";
+  const isHome = pathname === "/home" || pathname === "/training";
   const isCoach = pathname === "/coach";
 
   useEffect(() => {

@@ -65,7 +65,7 @@ const ROUTES: RouteEntry[] = [
     keywords: "home dashboard session daily briefing",
   },
   {
-    href: "/plan",
+    href: "/training",
     label: "Training",
     icon: CalendarRange,
     group: "Go to",
@@ -107,7 +107,7 @@ const ROUTES: RouteEntry[] = [
     keywords: "improving trajectory pr records am i improving",
   },
   {
-    href: "/training",
+    href: "/progress/load",
     label: "Training load",
     icon: Dumbbell,
     group: "Analysis & tools",

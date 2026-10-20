@@ -17,7 +17,6 @@ import {
   saveCalendarWeek,
   dateForWeekDay,
   targetPlanWeekStart,
-  matchPlannedVsActual,
 } from "@/lib/training-calendar";
 import type { TrainingCalendarWeek } from "@/lib/training-calendar";
 import {
@@ -27,7 +26,6 @@ import {
 } from "@/lib/training-calendar/calendarHistory";
 import {
   buildWeekTelemetry,
-  buildTodayInPlan,
   buildIntegrityItems,
   sessionExplainability,
   goalContextLabel,
@@ -37,13 +35,15 @@ import { coachUrl } from "@/lib/coach/domainLinks";
 import { planErrorPresentation } from "@/lib/plan/planErrorPresentation";
 import { PlanHeader, type PlanHeaderStatus } from "./plan-header";
 import { PlanWeekBoard } from "./plan-week-board";
-import { PlanWeekNav } from "./plan-week-nav";
 import { PlanWeekTelemetryStrip } from "./plan-week-telemetry";
-import { PlanTodayFocus } from "./plan-today-focus";
 import { PlanOperationalSidebar } from "./plan-operational-sidebar";
 import { PlanSavedStateCard } from "./plan-saved-state";
 import { PlanPlanningContext } from "./plan-planning-context";
-import { PlanWeekExecution } from "./plan-week-execution";
+import { currentWeekStart } from "@/lib/today/todayView";
+import { buildTrainingWeekView, summaryLine } from "@/lib/training-week/weekView";
+import { WeekStrip } from "@/components/training/week/week-strip";
+import { DayDetail } from "@/components/training/week/day-detail";
+import { WeekNav } from "@/components/training/week/week-nav";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -59,9 +59,28 @@ import { toast } from "sonner";
 import { CalendarPlus, RefreshCw } from "lucide-react";
 import type { RunActivity } from "@/lib/strava/types";
 
-// Stable empty reference so the `weekExecution` memo below doesn't re-run every
-// render when there's no import data (a fresh `[]` literal would break memoization).
+// Stable empty reference so the week view memo below doesn't re-run every render
+// when there's no import data (a fresh `[]` literal would break memoization).
 const EMPTY_RUNS: RunActivity[] = [];
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** The week containing `?date=`, else the current week (TRAIN-01). */
+function initialWeekStart(date: string | null): string {
+  return date && ISO_DATE.test(date) ? currentWeekStart(parseISO(date)) : currentWeekStart();
+}
+
+/**
+ * Mirror the selected day into the URL (`?date=`) so it survives a reload or a shared
+ * link, without a navigation; other params (e.g. `debug`) survive.
+ */
+function replaceDateParam(date: string | null) {
+  const params = new URLSearchParams(window.location.search);
+  if (date) params.set("date", date);
+  else params.delete("date");
+  const qs = params.toString();
+  window.history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
+}
 
 export function PlanWorkspace() {
   const searchParams = useSearchParams();
@@ -83,7 +102,11 @@ export function PlanWorkspace() {
     reset: resetPreview,
     lastPlanningContext,
   } = useWeeklyPlan();
-  const [viewWeekStart, setViewWeekStart] = useState(() => targetPlanWeekStart());
+  const requestedDate = searchParams.get("date");
+  // Read from the URL once, then owned here; the URL only mirrors it.
+  const [selectedDate, setSelectedDate] = useState<string | null>(requestedDate);
+  // Training opens on the current week (SPEC §7.2); generation still targets next week.
+  const [viewWeekStart, setViewWeekStart] = useState(() => initialWeekStart(requestedDate));
   const calendar = useTrainingCalendar(viewWeekStart);
   const [planningContext, setPlanningContext] = useState("");
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -102,6 +125,15 @@ export function PlanWorkspace() {
     if (!preview) return null;
     return weeklyPlanToCalendarWeek(preview.plan, preview);
   }, [preview]);
+
+  // Generation always builds next week, so follow a fresh preview to the week it is for;
+  // otherwise it would arrive off screen while the current week is in view. Adjusted
+  // during render (React's "storing information from previous renders"), not in an effect.
+  const [followedPreview, setFollowedPreview] = useState<string | null>(null);
+  if (previewWeek && previewWeek.weekStart !== followedPreview) {
+    setFollowedPreview(previewWeek.weekStart);
+    setViewWeekStart(previewWeek.weekStart);
+  }
 
   const previewAppliesToView =
     previewWeek?.weekStart === viewWeekStart || previewWeek?.weekStart === calendar.targetWeek;
@@ -158,21 +190,46 @@ export function PlanWorkspace() {
   const errorInfo = useMemo(() => planErrorPresentation(error, errorStatus), [error, errorStatus]);
 
   const telemetry = displayWeek ? buildWeekTelemetry(displayWeek, analytics) : null;
-  const today = displayWeek ? buildTodayInPlan(displayWeek) : null;
   const integrityItems = displayWeek ? buildIntegrityItems(displayWeek, preview) : [];
   const explainLines = displayWeek ? sessionExplainability(displayWeek) : [];
 
   const runs = importData?.runs ?? EMPTY_RUNS;
-  const weekExecution = useMemo(() => {
-    const week = calendar.savedWeek;
-    if (!week || showingPreview) return null;
-    return matchPlannedVsActual(week, runs);
-  }, [calendar.savedWeek, runs, showingPreview]);
+  const physiology = analytics?.physiology ?? null;
+  // The strip and selected day (SPEC §7). A preview has no runs against it: nothing in
+  // an unsaved plan has been done yet.
+  const weekView = useMemo(
+    () =>
+      displayWeek
+        ? buildTrainingWeekView({
+            week: displayWeek,
+            runs: showingPreview ? EMPTY_RUNS : runs,
+            physiology,
+            selectedDate,
+          })
+        : null,
+    [displayWeek, showingPreview, runs, physiology, selectedDate],
+  );
+
+  const selectDay = useCallback((date: string) => {
+    setSelectedDate(date);
+    replaceDateParam(date);
+  }, []);
 
   const shiftViewWeek = useCallback((deltaWeeks: number) => {
     setViewWeekStart((current) => format(addDays(parseISO(current), deltaWeeks * 7), "yyyy-MM-dd"));
     setConfirmReplace(false);
     setHighlightIds([]);
+    // A new week starts on today (if it is in it) or its Monday.
+    setSelectedDate(null);
+    replaceDateParam(null);
+  }, []);
+
+  const showCurrentWeek = useCallback(() => {
+    setViewWeekStart(currentWeekStart());
+    setConfirmReplace(false);
+    setHighlightIds([]);
+    setSelectedDate(null);
+    replaceDateParam(null);
   }, []);
 
   // Generating a preview never touches the saved week (it lives beside it until
@@ -200,7 +257,7 @@ export function PlanWorkspace() {
     setConfirmReplace(false);
     setHistoryTick((n) => n + 1);
     toast.success("Week saved", {
-      description: `${weekRange} is now your living plan on Home and Plan.`,
+      description: `${weekRange} is now your living plan on Today and Training.`,
     });
   }, [preview, calendar, resetPreview, planningContext, lastPlanningContext, weekRange]);
 
@@ -290,7 +347,24 @@ export function PlanWorkspace() {
   return (
     <div className="plan-workspace space-y-3 pb-10">
       <PlanHeader
-        title="Next week plan"
+        eyebrow={weekEyebrow(viewWeekStart)}
+        title={weekView?.rangeLabel ?? weekRange}
+        summary={
+          weekView ? (
+            <p className="text-base tabular-nums text-muted-foreground">
+              {showingPreview ? "Preview · " : ""}
+              {summaryLine(weekView)}
+            </p>
+          ) : undefined
+        }
+        nav={
+          <WeekNav
+            isCurrent={viewWeekStart === currentWeekStart()}
+            onPrev={() => shiftViewWeek(-1)}
+            onNext={() => shiftViewWeek(1)}
+            onCurrent={showCurrentWeek}
+          />
+        }
         weekRange={weekRange}
         status={status}
         statusLabel={statusLabel}
@@ -334,22 +408,6 @@ export function PlanWorkspace() {
           <span className="text-zinc-600">Context for this preview: </span>
           {planningContext.trim() || lastPlanningContext}
         </p>
-      ) : null}
-
-      {calendar.savedWeek?.planningContext && !showingPreview ? (
-        <p className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface)]/30 px-3 py-1.5 text-[11px] text-zinc-500">
-          <span className="text-zinc-600">Context used for this week: </span>
-          {calendar.savedWeek.planningContext}
-        </p>
-      ) : null}
-
-      {calendar.savedWeek && !showingPreview ? (
-        <PlanSavedStateCard
-          week={calendar.savedWeek}
-          historyAvailable={histCount}
-          modified={status === "modified"}
-          key={historyTick}
-        />
       ) : null}
 
       {showingPreview && preview ? (
@@ -421,7 +479,7 @@ export function PlanWorkspace() {
           </p>
           <p className="mx-auto mt-1 max-w-md text-[12px] text-zinc-600">
             Generate a week, edit sessions on the board, then save. It becomes your living plan on
-            Home and Plan.
+            Today and Training.
           </p>
           <Button className="mt-4 h-9 gap-1.5" onClick={() => void handleGenerate()}>
             <RefreshCw className="h-3.5 w-3.5" />
@@ -433,58 +491,78 @@ export function PlanWorkspace() {
       {!displayWeek && !loading && status !== "empty" ? (
         <div className="rounded-lg border border-dashed border-[var(--border-default)] px-4 py-6 text-center">
           <p className="text-[13px] text-zinc-500">No saved plan for this week.</p>
+          {/* Plans are generated for next week only; say so rather than imply this one. */}
           <Button className="mt-3 h-8 gap-1.5" size="sm" onClick={() => void handleGenerate()}>
             <RefreshCw className="h-3.5 w-3.5" />
-            Generate for this week
+            {viewWeekStart === targetPlanWeekStart()
+              ? "Generate for this week"
+              : "Generate next week's plan"}
           </Button>
         </div>
       ) : null}
 
-      {displayWeek ? (
-        <div className="grid gap-3 xl:grid-cols-[1fr_272px]">
-          <div className="min-w-0 space-y-3">
-            {today ? <PlanTodayFocus today={today} sticky className="lg:hidden" /> : null}
-
-            <PlanWeekNav
-              weekRange={weekRange}
-              onPrev={() => shiftViewWeek(-1)}
-              onNext={() => shiftViewWeek(1)}
-            />
-
-            <section className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-subdued)]/60 p-2 sm:p-3">
-              <PlanWeekBoard
-                week={displayWeek}
-                variant="full"
-                editable={!showingPreview && Boolean(calendar.savedWeek)}
-                draggable={!showingPreview && Boolean(calendar.savedWeek)}
-                highlightWorkoutIds={highlightIds}
-                onPatchWorkout={!showingPreview ? calendar.patchWorkout : undefined}
-                onDeleteWorkout={!showingPreview ? calendar.removeWorkout : undefined}
-                onSwapWorkouts={!showingPreview ? calendar.swapWorkouts : undefined}
-                onSwipePastStart={() => shiftViewWeek(-1)}
-                onSwipePastEnd={() => shiftViewWeek(1)}
-              />
-            </section>
-
-            {weekExecution ? (
-              <PlanWeekExecution
-                summary={weekExecution}
-                onHighlightDay={(id) => setHighlightIds([id])}
-              />
-            ) : null}
-
-            {telemetry ? <PlanWeekTelemetryStrip telemetry={telemetry} /> : null}
-
-            {today ? <PlanTodayFocus today={today} className="hidden lg:block" /> : null}
-          </div>
-
-          <PlanOperationalSidebar
-            week={!showingPreview ? calendar.savedWeek : null}
-            preview={showingPreview ? preview : null}
-            integrityItems={integrityItems}
-            explainLines={explainLines}
-            onHighlightWorkouts={setHighlightIds}
+      {displayWeek && weekView ? (
+        <div className="space-y-8 pt-2">
+          <WeekStrip
+            days={weekView.days}
+            selectedDate={weekView.selected.date}
+            onSelect={selectDay}
           />
+          <DayDetail detail={weekView.selected} />
+
+          <div className="grid gap-3 border-t border-[var(--border-subtle)] pt-6 xl:grid-cols-[1fr_272px]">
+            <div className="min-w-0 space-y-3">
+              {/* Direct edits stay on the board until 3b moves them to the selected day. */}
+              <Collapsible className="rounded-lg border border-[var(--border-subtle)]">
+                <CollapsibleTrigger className="flex w-full min-h-11 items-center justify-between px-4 text-left text-sm font-semibold text-foreground">
+                  {showingPreview ? "Preview the whole week" : "Edit this week"}
+                  <span className="hidden text-xs font-normal text-muted-foreground sm:inline">
+                    Edit, move or remove sessions
+                  </span>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="border-t border-[var(--border-subtle)] p-2 sm:p-3">
+                  <PlanWeekBoard
+                    week={displayWeek}
+                    variant="full"
+                    editable={!showingPreview && Boolean(calendar.savedWeek)}
+                    draggable={!showingPreview && Boolean(calendar.savedWeek)}
+                    highlightWorkoutIds={highlightIds}
+                    onPatchWorkout={!showingPreview ? calendar.patchWorkout : undefined}
+                    onDeleteWorkout={!showingPreview ? calendar.removeWorkout : undefined}
+                    onSwapWorkouts={!showingPreview ? calendar.swapWorkouts : undefined}
+                    onSwipePastStart={() => shiftViewWeek(-1)}
+                    onSwipePastEnd={() => shiftViewWeek(1)}
+                  />
+                </CollapsibleContent>
+              </Collapsible>
+
+              {telemetry ? <PlanWeekTelemetryStrip telemetry={telemetry} /> : null}
+
+              {calendar.savedWeek?.planningContext && !showingPreview ? (
+                <p className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface)]/30 px-3 py-1.5 text-[11px] text-zinc-500">
+                  <span className="text-zinc-600">Context used for this week: </span>
+                  {calendar.savedWeek.planningContext}
+                </p>
+              ) : null}
+
+              {calendar.savedWeek && !showingPreview ? (
+                <PlanSavedStateCard
+                  week={calendar.savedWeek}
+                  historyAvailable={histCount}
+                  modified={status === "modified"}
+                  key={historyTick}
+                />
+              ) : null}
+            </div>
+
+            <PlanOperationalSidebar
+              week={!showingPreview ? calendar.savedWeek : null}
+              preview={showingPreview ? preview : null}
+              integrityItems={integrityItems}
+              explainLines={explainLines}
+              onHighlightWorkouts={setHighlightIds}
+            />
+          </div>
         </div>
       ) : null}
 
@@ -517,7 +595,8 @@ export function PlanWorkspace() {
           <DialogHeader>
             <DialogTitle>Clear the saved week?</DialogTitle>
             <DialogDescription>
-              {weekRange} will be removed from Home and Plan. You can undo this straight afterwards.
+              {weekRange} will be removed from Today and Training. You can undo this straight
+              afterwards.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -536,4 +615,11 @@ export function PlanWorkspace() {
       </Dialog>
     </div>
   );
+}
+
+function weekEyebrow(weekStart: string): string {
+  const current = currentWeekStart();
+  if (weekStart === current) return "Current week";
+  if (weekStart === targetPlanWeekStart()) return "Next week";
+  return weekStart < current ? "Past week" : "Upcoming week";
 }

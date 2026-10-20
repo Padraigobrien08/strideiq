@@ -31,7 +31,7 @@ export default function ProgressPage() {
           <Link href="/performance" className="font-medium text-accent hover:underline">
             Performance
           </Link>
-          <Link href="/training" className="font-medium text-accent hover:underline">
+          <Link href="/progress/load" className="font-medium text-accent hover:underline">
             Training load
           </Link>
           <Link href="/report" className="font-medium text-accent hover:underline">

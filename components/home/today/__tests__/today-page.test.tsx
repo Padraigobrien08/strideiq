@@ -157,6 +157,9 @@ describe("Today", () => {
       "href",
       "/coach?source=today&date=2026-10-18&workout=w-2026-10-18",
     );
-    expect(screen.getByRole("link", { name: /view this week/i })).toHaveAttribute("href", "/plan");
+    expect(screen.getByRole("link", { name: /view this week/i })).toHaveAttribute(
+      "href",
+      "/training",
+    );
   });
 });

@@ -7,7 +7,6 @@ const params = (qs: string) => new URLSearchParams(qs);
 describe("coachSourceForPath", () => {
   it("maps each primary area to its source kind", () => {
     expect(coachSourceForPath("/home")).toEqual({ source: "today" });
-    expect(coachSourceForPath("/plan")).toEqual({ source: "training_week" });
     expect(coachSourceForPath("/training")).toEqual({ source: "training_week" });
     expect(coachSourceForPath("/progress")).toEqual({ source: "progress" });
     expect(coachSourceForPath("/intelligence")).toEqual({ source: "progress" });
@@ -73,5 +72,16 @@ describe("today's session context (overhaul Phase 2)", () => {
       source: "today",
     });
     expect(parseCoachSource(params("source=progress&workout=w-1"))).toEqual({ source: "progress" });
+  });
+});
+
+describe("training's selected day (overhaul Phase 3)", () => {
+  it("carries the day and its session from Training", () => {
+    const url = coachUrl({ source: "training_week", date: "2026-10-23", workout: "w-2026-10-23" });
+    expect(parseCoachSource(params(url.split("?")[1]))).toEqual({
+      source: "training_week",
+      date: "2026-10-23",
+      workout: "w-2026-10-23",
+    });
   });
 });

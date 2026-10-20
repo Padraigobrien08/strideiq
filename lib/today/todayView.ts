@@ -119,10 +119,11 @@ export function findTodayWorkout(
   return week.workouts.find((w) => w.date.slice(0, 10) === isoDate) ?? null;
 }
 
-const isRest = (w: CalendarWorkout) =>
+/** A planned rest day, however the planner labelled it. Shared with Training's week. */
+export const isRest = (w: CalendarWorkout) =>
   w.modality === "rest" || w.intensity === "rest" || /^rest\b/i.test(w.type);
 
-function paceRange(p: TargetPace): string {
+export function paceRange(p: TargetPace): string {
   // "5:35–5:55 /km": the unit once, at the end.
   const fast = formatPace(p.fastSecPerKm).replace(/\s*\/.*$/, "");
   return `${fast}–${formatPace(p.slowSecPerKm)}`;
@@ -159,8 +160,16 @@ function figuresFor(
   };
 }
 
-function figuresForWorkout(w: CalendarWorkout, analytics: DashboardInsights): TodayFigures {
-  const pace = w.modality === "run" ? targetPaceFor(paceZoneFor(w), analytics.physiology) : null;
+/**
+ * A saved session's figures: its own distance and duration, and a target pace derived
+ * from physiology (D2). Shared with Training's selected day so both pages agree.
+ */
+export function figuresForWorkout(
+  w: CalendarWorkout,
+  physiology: DashboardInsights["physiology"] | null,
+): TodayFigures {
+  const pace =
+    w.modality === "run" && physiology ? targetPaceFor(paceZoneFor(w), physiology) : null;
   const km =
     w.distanceKm != null && w.distanceKm > 0 ? ([w.distanceKm, w.distanceKm] as const) : null;
   return figuresFor(km, w.durationMin ?? null, pace);
@@ -191,7 +200,7 @@ function buildSession(
         guidance: REST_GUIDANCE,
         tomorrow:
           next && !isRest(next)
-            ? { title: next.title, figures: figuresForWorkout(next, analytics) }
+            ? { title: next.title, figures: figuresForWorkout(next, analytics.physiology) }
             : null,
         source: "plan",
         calendarWorkoutId: planned.id,
@@ -200,7 +209,7 @@ function buildSession(
     return {
       kind: "run",
       title: planned.title,
-      figures: figuresForWorkout(planned, analytics),
+      figures: figuresForWorkout(planned, analytics.physiology),
       why: planned.purpose || planned.reasoning || "Scheduled in your saved week.",
       raceRelevance: planned.modality === "run" ? raceRelevance(paceZoneFor(planned), goal) : null,
       source: "plan",
