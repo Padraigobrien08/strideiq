@@ -15,11 +15,11 @@ export type CoachSourceKind = "today" | "training_week" | "activity" | "progress
 
 export interface CoachSourceParams {
   source: CoachSourceKind;
-  /** yyyy-MM-dd, for `today`. */
+  /** yyyy-MM-dd, for `today` and a selected `training_week` day. */
   date?: string;
   /** Strava activity id, for `activity`. */
   activity?: string;
-  /** Saved-calendar workout id, for `today` when it follows the plan. */
+  /** Saved-calendar workout id, for `today` when it follows the plan, or Training's selected day. */
   workout?: string;
 }
 
@@ -50,7 +50,7 @@ export function coachSourceForPath(pathname: string): CoachSourceParams | null {
   if (pathname === "/home") return { source: "today" };
   const activity = pathname.match(/^\/runs\/([^/]+)(?:\/|$)/)?.[1];
   if (activity && ACTIVITY_ID.test(activity)) return { source: "activity", activity };
-  if (pathname === "/plan" || pathname === "/training" || pathname.startsWith("/training/")) {
+  if (pathname === "/training" || pathname.startsWith("/training/")) {
     return { source: "training_week" };
   }
   if (
@@ -73,10 +73,12 @@ export function parseCoachSource(params: {
   const date = params.get("date");
   const activity = params.get("activity");
   const workout = params.get("workout");
+  // A day and its session make sense from Today and from Training's selected day only.
+  const dated = kind === "today" || kind === "training_week";
   return {
     source: kind,
-    ...(kind === "today" && date && ISO_DATE.test(date) ? { date } : {}),
-    ...(kind === "today" && workout && WORKOUT_ID.test(workout) ? { workout } : {}),
+    ...(dated && date && ISO_DATE.test(date) ? { date } : {}),
+    ...(dated && workout && WORKOUT_ID.test(workout) ? { workout } : {}),
     ...(kind === "activity" && activity && ACTIVITY_ID.test(activity) ? { activity } : {}),
   };
 }

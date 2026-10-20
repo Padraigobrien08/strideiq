@@ -339,7 +339,7 @@ export function buildKpis(analytics: DashboardInsights): KpiViewModel[] {
       },
       sparkline: ctlSpark,
       sparkPositive: ctlUp,
-      href: "/plan?tab=goal",
+      href: "/progress",
     },
     {
       label: "Consistency",
@@ -362,7 +362,7 @@ export function buildKpis(analytics: DashboardInsights): KpiViewModel[] {
       },
       sparkline: weekKm,
       sparkPositive: volTrendUp,
-      href: "/training",
+      href: "/progress/load",
     },
   ];
 }
@@ -470,7 +470,7 @@ export function buildInsightRows(
         `TSB ${analytics.fatigue.tsb > 0 ? "+" : ""}${Math.round(analytics.fatigue.tsb)}`,
       ],
       recommendation: adv.recommendations[0],
-      recommendationHref: "/training",
+      recommendationHref: "/progress/load",
       trend: { text: "Intensity-heavy", positive: false },
       evidence: adv.recommendations.slice(1),
     });
@@ -488,7 +488,7 @@ export function buildInsightRows(
         "Too much moderate-hard running blurs recovery. Polarize with more true easy days.",
       pills: [`${z3.count} above Z3`, `${Math.round((z3.count / z3.total) * 100)}% of HR runs`],
       recommendation: "Cap intensity to 1–2 sessions this week; fill gaps with easy aerobic runs.",
-      recommendationHref: "/training",
+      recommendationHref: "/progress/load",
       trend: { text: "Z3+ elevated", positive: false },
     });
   }
@@ -509,7 +509,7 @@ export function buildInsightRows(
         `TSB ${analytics.fatigue.tsb > 0 ? "+" : ""}${Math.round(analytics.fatigue.tsb)}`,
       ],
       recommendation: fatigueInsight.recommendation,
-      recommendationHref: "/training",
+      recommendationHref: "/progress/load",
       trend: { text: "Recovery needed", positive: false },
       evidence: fatigueInsight.evidence.slice(1),
     });
@@ -593,7 +593,7 @@ export function buildInsightRows(
         ecoInterference.length > 0
           ? "Separate hard gym or HIIT from quality runs by 24–48h when possible."
           : "Review cross-training panel on Training.",
-      recommendationHref: "/training",
+      recommendationHref: "/progress/load",
       trend: {
         text: ecoInterference.length > 0 ? "Interference" : "Ecosystem OK",
         positive: ecoInterference.length === 0,
@@ -614,7 +614,7 @@ export function buildInsightRows(
       whyItMatters: "Your adaptive plan aligns volume and intensity with current freshness.",
       pills: ["next week"],
       recommendation: "Review full week plan",
-      recommendationHref: "/training",
+      recommendationHref: "/progress/load",
     });
   }
 
@@ -810,7 +810,7 @@ export function buildGoalMission(analytics: DashboardInsights): GoalMissionViewM
       confidence: analytics.dataConfidence,
       segments,
       focusAreas: r.gaps.slice(0, 2).map((g) => `${g.metric}: ${g.current} → ${g.target}`),
-      href: "/plan?tab=goal",
+      href: "/progress",
     };
   }
 
@@ -823,7 +823,7 @@ export function buildGoalMission(analytics: DashboardInsights): GoalMissionViewM
       `Long ${formatKmValue(hm.longestRunKm)} km (${Math.round(hm.longestRunPct)}% HM)`,
       `4wk ${formatKm(hm.fourWeekVolumeKm)}`,
     ],
-    href: "/plan?tab=goal",
+    href: "/progress",
   };
 }
 

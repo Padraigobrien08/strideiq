@@ -20,6 +20,16 @@ const nextConfig: NextConfig = {
         destination: "/api/auth/strava/authorize",
         permanent: false,
       },
+      // Overhaul Phase 3: the week moved to /training and the race goal to /progress.
+      // Temporary (307) while old links and bookmarks age out; the goal rule must come
+      // first, since both match /plan.
+      {
+        source: "/plan",
+        has: [{ type: "query", key: "tab", value: "goal" }],
+        destination: "/progress",
+        permanent: false,
+      },
+      { source: "/plan", destination: "/training", permanent: false },
     ];
   },
 };

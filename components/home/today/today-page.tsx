@@ -69,7 +69,7 @@ export function TodayPage({ view, below }: { view: TodayView; below?: ReactNode 
               {view.session.kind === "run" ? "Ask about this run" : "Ask about today"}
             </Link>
             <Link
-              href="/plan"
+              href="/training"
               className="inline-flex min-h-11 items-center gap-1.5 text-[0.9375rem] font-medium text-[var(--accent)] underline-offset-4 hover:underline"
             >
               View this week <ArrowRight className="h-4 w-4" aria-hidden />
@@ -80,7 +80,7 @@ export function TodayPage({ view, below }: { view: TodayView; below?: ReactNode 
             <p className="mt-4 text-sm text-muted-foreground">
               No plan saved for this week, so StrideIQ chose today from your recent training.{" "}
               <Link
-                href="/plan"
+                href="/training"
                 className="font-medium text-[var(--accent)] underline-offset-4 hover:underline"
               >
                 Plan your week
@@ -117,7 +117,7 @@ function RunPrescription({ session }: { session: TodayRunSession }) {
       >
         {session.title}
       </h1>
-      <Figures figures={session.figures} />
+      <SessionFigures figures={session.figures} />
       <div className="mt-8 max-w-[65ch] space-y-6 border-t border-[var(--border-subtle)] pt-8">
         <div>
           <h2 className="text-lg font-semibold text-foreground">Why today</h2>
@@ -136,7 +136,8 @@ function RunPrescription({ session }: { session: TodayRunSession }) {
   );
 }
 
-function Figures({ figures }: { figures: TodayFigures }) {
+/** Distance, duration and pace with their labels; shared with Training's selected day. */
+export function SessionFigures({ figures }: { figures: TodayFigures }) {
   const items: { icon: typeof Route; label: string; value: string; wide?: boolean }[] = [];
   if (figures.distance) items.push({ icon: Route, label: "Distance", value: figures.distance });
   if (figures.duration) {

@@ -11,14 +11,13 @@ import { CalendarRange, Sun, TrendingUp } from "lucide-react";
  * track. Coach is not a destination; it is the Ask Coach action in the header.
  *
  * Each destination owns the routes beneath it, so a deep page still shows where it
- * lives. Until overhaul Phases 3 and 4 move content, Training's canonical URL is
- * `/plan` (the current week) and Progress renders the race-goal view; `/training`,
- * `/runs`, `/performance` and `/intelligence` stay valid deep routes under them, and
- * the command palette still lists every one.
+ * lives. Training is the current week (`/training`, Phase 3) with activities under it;
+ * Progress owns the race goal and the analysis behind it (`/progress/load`,
+ * `/performance`, `/intelligence`, `/report`). `/plan` and `/goals` only redirect.
  */
 export const PRIMARY_DESTINATIONS = [
   { href: "/home", label: "Today", icon: Sun, owns: ["/home"] },
-  { href: "/plan", label: "Training", icon: CalendarRange, owns: ["/plan", "/training", "/runs"] },
+  { href: "/training", label: "Training", icon: CalendarRange, owns: ["/training", "/runs"] },
   {
     href: "/progress",
     label: "Progress",

@@ -302,3 +302,18 @@ describe("while generating", () => {
     expect(contextField()).toBeDisabled();
   });
 });
+
+describe("the selected day (overhaul Phase 3, TRAIN-02)", () => {
+  it("follows the strip, and mirrors the choice into the URL", async () => {
+    calendarState.savedWeek = savedWeek();
+    calendarState.hasSaved = true;
+    render(<PlanWorkspace />);
+
+    // A past week opens on its Monday, the only planned day in the fixture.
+    expect(screen.getByRole("heading", { level: 2, name: "Saved easy run" })).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: /^Tue 10/ }));
+    expect(screen.getByRole("heading", { level: 2, name: "Rest day" })).toBeInTheDocument();
+    expect(window.location.search).toContain("date=2026-03-10");
+  });
+});

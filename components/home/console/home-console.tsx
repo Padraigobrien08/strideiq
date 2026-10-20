@@ -379,7 +379,7 @@ function TheCall({
       {/* actions */}
       <div className="flex flex-wrap gap-2 px-4 pb-4 sm:px-5">
         {hasSavedPlan ? (
-          <Link href="/plan">
+          <Link href="/training">
             <Button
               size="sm"
               className="h-8 gap-1 border-0 text-xs text-[var(--home-signal-ink)]"
@@ -441,7 +441,7 @@ function Readiness({
             {fatigue.tsb}
           </span>
           <Link
-            href="/training"
+            href="/progress/load"
             className="text-[11px] text-zinc-500 transition-colors hover:text-zinc-300"
           >
             Load detail →
@@ -535,7 +535,7 @@ function WeekStrip({
             ) : null}
           </>
         }
-        href="/plan"
+        href="/training"
         action="Open plan"
       />
 

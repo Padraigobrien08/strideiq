@@ -35,12 +35,12 @@ describe("depth surfaces are reachable by clicking, not only by ⌘K", () => {
   const progress = sourceOf("app", "progress", "page.tsx");
 
   it("links Today to the week and to the projection", () => {
-    expect(today).toMatch(/href="\/plan"/);
+    expect(today).toMatch(/href="\/training"/);
     expect(today).toMatch(/href="\/progress"/);
   });
 
   it("links Progress to every analysis page that left the top nav", () => {
-    for (const href of ["/intelligence", "/performance", "/training", "/report"]) {
+    for (const href of ["/intelligence", "/performance", "/progress/load", "/report"]) {
       expect(progress).toContain(`href="${href}"`);
     }
   });

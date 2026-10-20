@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { Copy, Loader2, MessageCircle, RefreshCw, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConfidenceBadge } from "@/components/confidence-badge";
@@ -10,7 +11,10 @@ import { cn } from "@/lib/utils";
 export type PlanHeaderStatus = "empty" | "saved" | "preview" | "saved_with_preview" | "modified";
 
 export function PlanHeader({
+  eyebrow = "Week planner",
   title,
+  summary,
+  nav,
   weekRange,
   status,
   statusLabel,
@@ -30,7 +34,12 @@ export function PlanHeader({
   onViewSaved,
   coachHref,
 }: {
+  eyebrow?: string;
   title: string;
+  /** Replaces the plain week-range line, e.g. Training's "2 of 5 sessions complete". */
+  summary?: ReactNode;
+  /** Week navigation, shown beside the title. */
+  nav?: ReactNode;
   weekRange: string;
   status: PlanHeaderStatus;
   statusLabel: string;
@@ -54,9 +63,14 @@ export function PlanHeader({
   return (
     <header className="flex flex-col gap-3 border-b border-[var(--border-subtle)] pb-3 sm:flex-row sm:items-start sm:justify-between">
       <div className="min-w-0 space-y-1.5">
-        <Eyebrow>Week planner</Eyebrow>
-        <h1 className="type-page-title">{title}</h1>
-        <p className="font-mono text-[13px] tabular-nums text-muted-foreground">{weekRange}</p>
+        <Eyebrow>{eyebrow}</Eyebrow>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <h1 className="type-page-title">{title}</h1>
+          {nav}
+        </div>
+        {summary ?? (
+          <p className="font-mono text-[13px] tabular-nums text-muted-foreground">{weekRange}</p>
+        )}
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge status={status} label={statusLabel} />
           <span className="text-[11px] text-zinc-600">{phaseLabel}</span>
