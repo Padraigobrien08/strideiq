@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
@@ -97,7 +98,9 @@ export function CompactRaceGoalForm() {
           Race mission setup
           {raceGoal ? (
             <span className="ml-2 font-normal normal-case text-accent/80">
-              {raceDisplayName(raceGoal)} · {new Date(raceGoal.date).toLocaleDateString()}
+              {/* parseISO reads the date-only string as a local date: new Date() read it
+                  as UTC midnight, a day early west of UTC, and in the browser's locale. */}
+              {raceDisplayName(raceGoal)} · {format(parseISO(raceGoal.date), "d MMM yyyy")}
             </span>
           ) : null}
         </span>

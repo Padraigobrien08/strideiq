@@ -285,9 +285,10 @@ export function PlanWorkspace() {
         ? {
             label: "Undo",
             onClick: () => {
-              saveCalendarWeek(cleared);
+              // Through the hook, so the server copy (deleted by Clear) comes back
+              // too; the snapshot taken before clearing is then dropped.
+              calendar.replaceWeek(cleared);
               revertCalendarWeek(cleared.weekStart);
-              calendar.refresh();
               setHistoryTick((n) => n + 1);
               toast.success("Week restored");
             },

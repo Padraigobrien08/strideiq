@@ -146,7 +146,7 @@ export function recommendTodaySession(i: TodaySessionInput): TodaySessionRecomme
   if (i.intensityAdvice.status === "too_hard") {
     return make(
       "easy",
-      "Easy aerobic",
+      "Easy aerobic run",
       kmRange(i.typicalRunKm),
       "easy",
       [
@@ -223,7 +223,7 @@ export function recommendTodaySession(i: TodaySessionInput): TodaySessionRecomme
   // 8. Default: easy aerobic.
   return make(
     "easy",
-    "Easy aerobic",
+    "Easy aerobic run",
     kmRange(i.typicalRunKm),
     "easy",
     ["A steady easy run keeps aerobic volume up without adding fatigue."],
