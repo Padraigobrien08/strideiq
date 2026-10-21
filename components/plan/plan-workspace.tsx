@@ -34,16 +34,20 @@ import {
 import { coachUrl } from "@/lib/coach/domainLinks";
 import { planErrorPresentation } from "@/lib/plan/planErrorPresentation";
 import { PlanHeader, type PlanHeaderStatus } from "./plan-header";
-import { PlanWeekBoard } from "./plan-week-board";
 import { PlanWeekTelemetryStrip } from "./plan-week-telemetry";
 import { PlanOperationalSidebar } from "./plan-operational-sidebar";
 import { PlanSavedStateCard } from "./plan-saved-state";
 import { PlanPlanningContext } from "./plan-planning-context";
 import { currentWeekStart } from "@/lib/today/todayView";
-import { buildTrainingWeekView, summaryLine } from "@/lib/training-week/weekView";
+import {
+  buildTrainingWeekView,
+  summaryLine,
+  type DayDetail as DayDetailView,
+} from "@/lib/training-week/weekView";
 import { WeekStrip } from "@/components/training/week/week-strip";
 import { DayDetail } from "@/components/training/week/day-detail";
 import { WeekNav } from "@/components/training/week/week-nav";
+import { SessionEditor } from "@/components/training/week/session-editor";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -56,7 +60,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { CalendarPlus, RefreshCw } from "lucide-react";
+import { CalendarPlus, Check, Pencil, RefreshCw, X } from "lucide-react";
 import type { RunActivity } from "@/lib/strava/types";
 
 // Stable empty reference so the week view memo below doesn't re-run every render
@@ -111,7 +115,8 @@ export function PlanWorkspace() {
   const [planningContext, setPlanningContext] = useState("");
   const [saveError, setSaveError] = useState<string | null>(null);
   const [confirmReplace, setConfirmReplace] = useState(false);
-  const [highlightIds, setHighlightIds] = useState<string[]>([]);
+  // The session being edited on the selected day (Phase 3b), by workout id.
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [historyTick, setHistoryTick] = useState(0);
   const [clearOpen, setClearOpen] = useState(false);
 
@@ -212,13 +217,14 @@ export function PlanWorkspace() {
 
   const selectDay = useCallback((date: string) => {
     setSelectedDate(date);
+    setEditingId(null);
     replaceDateParam(date);
   }, []);
 
   const shiftViewWeek = useCallback((deltaWeeks: number) => {
     setViewWeekStart((current) => format(addDays(parseISO(current), deltaWeeks * 7), "yyyy-MM-dd"));
     setConfirmReplace(false);
-    setHighlightIds([]);
+    setEditingId(null);
     // A new week starts on today (if it is in it) or its Monday.
     setSelectedDate(null);
     replaceDateParam(null);
@@ -227,7 +233,7 @@ export function PlanWorkspace() {
   const showCurrentWeek = useCallback(() => {
     setViewWeekStart(currentWeekStart());
     setConfirmReplace(false);
-    setHighlightIds([]);
+    setEditingId(null);
     setSelectedDate(null);
     replaceDateParam(null);
   }, []);
@@ -270,7 +276,7 @@ export function PlanWorkspace() {
     resetPreview();
     setConfirmReplace(false);
     setSaveError(null);
-    setHighlightIds([]);
+    setEditingId(null);
     setClearOpen(false);
     setHistoryTick((n) => n + 1);
     toast.success("Saved week cleared", {
@@ -296,11 +302,44 @@ export function PlanWorkspace() {
       toast.info("No earlier version to restore for this week.");
       return;
     }
-    saveCalendarWeek(previous);
-    calendar.refresh();
+    // Through the hook, so the restored week also reaches the server copy; a bare
+    // saveCalendarWeek left the server on the newer version, to come back on reload.
+    calendar.replaceWeek(previous);
     setHistoryTick((n) => n + 1);
     toast.success("Restored the previous version of this week");
   }, [calendar]);
+
+  // Undo the change just saved: restore the snapshot it was taken over, then drop the
+  // snapshot that restoring pushes, so history reads as if the change never happened.
+  const undoLastChange = useCallback(() => {
+    const ws = calendar.targetWeek;
+    const previous = revertCalendarWeek(ws);
+    if (!previous) return;
+    calendar.replaceWeek(previous);
+    revertCalendarWeek(ws);
+    setHistoryTick((n) => n + 1);
+    toast.success("Change undone");
+  }, [calendar]);
+
+  const handleEditSave = useCallback(
+    (next: TrainingCalendarWeek) => {
+      calendar.replaceWeek(next);
+      setEditingId(null);
+      setHistoryTick((n) => n + 1);
+      toast.success("Session updated", {
+        action: { label: "Undo", onClick: undoLastChange },
+      });
+    },
+    [calendar, undoLastChange],
+  );
+
+  const handleMark = useCallback(
+    (workoutId: string, status: "completed" | "skipped" | "planned") => {
+      calendar.patchWorkout(workoutId, { status });
+      setHistoryTick((n) => n + 1);
+    },
+    [calendar],
+  );
 
   const handleDuplicate = useCallback(() => {
     if (!calendar.savedWeek) return;
@@ -343,6 +382,20 @@ export function PlanWorkspace() {
   });
 
   const histCount = calendar.savedWeek ? historyCount(calendar.savedWeek.weekStart) : 0;
+
+  // Editing and marking act on the saved week only, never on an unsaved preview.
+  const canChangeWeek = Boolean(calendar.savedWeek) && !showingPreview;
+  const selectedWorkoutId = weekView?.selected.workoutId ?? null;
+  const editingWorkout =
+    canChangeWeek && editingId && editingId === selectedWorkoutId
+      ? (calendar.savedWeek!.workouts.find((w) => w.id === editingId) ?? null)
+      : null;
+
+  // The sidebar's "why these sessions" points at sessions: show the first one's day.
+  const highlightWorkouts = (ids: string[]) => {
+    const target = displayWeek?.workouts.find((w) => w.id === ids[0]);
+    if (target) selectDay(target.date.slice(0, 10));
+  };
 
   return (
     // Capped and centred on wide screens (viewport contract rule 5).
@@ -509,34 +562,35 @@ export function PlanWorkspace() {
             selectedDate={weekView.selected.date}
             onSelect={selectDay}
           />
-          <DayDetail detail={weekView.selected} />
+          <DayDetail
+            detail={weekView.selected}
+            editor={
+              editingWorkout && calendar.savedWeek ? (
+                <SessionEditor
+                  key={editingWorkout.id}
+                  week={calendar.savedWeek}
+                  workout={editingWorkout}
+                  todayIso={format(new Date(), "yyyy-MM-dd")}
+                  physiology={physiology}
+                  onSave={handleEditSave}
+                  onCancel={() => setEditingId(null)}
+                />
+              ) : undefined
+            }
+            controls={
+              canChangeWeek && selectedWorkoutId ? (
+                <DayControls
+                  action={weekView.selected.action}
+                  editing={editingWorkout !== null}
+                  onEdit={() => setEditingId(selectedWorkoutId)}
+                  onMark={(status) => handleMark(selectedWorkoutId, status)}
+                />
+              ) : undefined
+            }
+          />
 
           <div className="grid gap-3 border-t border-[var(--border-subtle)] pt-6 xl:grid-cols-[1fr_272px]">
             <div className="min-w-0 space-y-3">
-              {/* Direct edits stay on the board until 3b moves them to the selected day. */}
-              <Collapsible className="rounded-lg border border-[var(--border-subtle)]">
-                <CollapsibleTrigger className="flex w-full min-h-11 items-center justify-between px-4 text-left text-sm font-semibold text-foreground">
-                  {showingPreview ? "Preview the whole week" : "Edit this week"}
-                  <span className="hidden text-xs font-normal text-muted-foreground sm:inline">
-                    Edit, move or remove sessions
-                  </span>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="border-t border-[var(--border-subtle)] p-2 sm:p-3">
-                  <PlanWeekBoard
-                    week={displayWeek}
-                    variant="full"
-                    editable={!showingPreview && Boolean(calendar.savedWeek)}
-                    draggable={!showingPreview && Boolean(calendar.savedWeek)}
-                    highlightWorkoutIds={highlightIds}
-                    onPatchWorkout={!showingPreview ? calendar.patchWorkout : undefined}
-                    onDeleteWorkout={!showingPreview ? calendar.removeWorkout : undefined}
-                    onSwapWorkouts={!showingPreview ? calendar.swapWorkouts : undefined}
-                    onSwipePastStart={() => shiftViewWeek(-1)}
-                    onSwipePastEnd={() => shiftViewWeek(1)}
-                  />
-                </CollapsibleContent>
-              </Collapsible>
-
               {telemetry ? <PlanWeekTelemetryStrip telemetry={telemetry} /> : null}
 
               {calendar.savedWeek?.planningContext && !showingPreview ? (
@@ -561,7 +615,7 @@ export function PlanWorkspace() {
               preview={showingPreview ? preview : null}
               integrityItems={integrityItems}
               explainLines={explainLines}
-              onHighlightWorkouts={setHighlightIds}
+              onHighlightWorkouts={highlightWorkouts}
             />
           </div>
         </div>
@@ -623,4 +677,57 @@ function weekEyebrow(weekStart: string): string {
   if (weekStart === current) return "Current week";
   if (weekStart === targetPlanWeekStart()) return "Next week";
   return weekStart < current ? "Past week" : "Upcoming week";
+}
+
+/** Edit, or mark done / skipped, for the selected day (Phase 3b). */
+function DayControls({
+  action,
+  editing,
+  onEdit,
+  onMark,
+}: {
+  action: DayDetailView["action"];
+  editing: boolean;
+  onEdit: () => void;
+  onMark: (status: "completed" | "skipped" | "planned") => void;
+}) {
+  if (!action) return null;
+  const secondary =
+    "inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-[var(--border-default)] px-4 text-[0.9375rem] font-medium text-foreground transition-colors hover:bg-[var(--surface-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  if (action.kind === "edit") {
+    return editing ? null : (
+      <div className="mt-4">
+        <button type="button" onClick={onEdit} className={secondary}>
+          <Pencil className="h-4 w-4" aria-hidden />
+          Edit session
+        </button>
+      </div>
+    );
+  }
+  if (action.marked) {
+    return (
+      <p className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+        Marked {action.marked === "completed" ? "done" : "skipped"} by you.
+        <button
+          type="button"
+          onClick={() => onMark("planned")}
+          className="min-h-9 font-medium text-[var(--accent)] underline-offset-4 hover:underline"
+        >
+          Undo
+        </button>
+      </p>
+    );
+  }
+  return (
+    <div className="mt-4 flex flex-wrap gap-2">
+      <button type="button" onClick={() => onMark("completed")} className={secondary}>
+        <Check className="h-4 w-4" aria-hidden />
+        Mark done
+      </button>
+      <button type="button" onClick={() => onMark("skipped")} className={secondary}>
+        <X className="h-4 w-4" aria-hidden />
+        Mark skipped
+      </button>
+    </div>
+  );
 }

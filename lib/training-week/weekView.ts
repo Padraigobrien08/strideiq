@@ -80,6 +80,13 @@ export interface DayDetail {
   /** Other sessions on the same day (strength, cross-training). */
   alsoPlanned: string[];
   coachHref: string;
+  /** The day's saved session, when there is one (rest days included). */
+  workoutId: string | null;
+  /**
+   * What the athlete may do to it (Phase 3b): edit a session still to come, or mark a
+   * past or current one done or skipped when no run was logged. Null: neither.
+   */
+  action: { kind: "edit" } | { kind: "mark"; marked: "completed" | "skipped" | null } | null;
 }
 
 export interface WeekSummary {
@@ -316,6 +323,11 @@ export function buildTrainingWeekView(params: {
   const rest = !w || isRest(w);
   const figures = w && !rest ? figuresForWorkout(w, physiology) : null;
   const hasRuns = day.dayRuns.length > 0 && date <= todayIso;
+  // Runs and rest days can be edited (other modalities have no editor yet), today
+  // included until a run is logged; earlier sessions without a run can only be marked.
+  const editable = !!w && (w.modality === "run" || rest) && date >= todayIso && !hasRuns;
+  const markable = !!w && !rest && date <= todayIso && !hasRuns;
+  const marked = w?.status === "completed" || w?.status === "skipped" ? w.status : null;
   const showPrescription =
     !rest && (day.status === "today" || day.status === "upcoming" || !hasRuns);
 
@@ -334,6 +346,14 @@ export function buildTrainingWeekView(params: {
     note: noteFor(day.status, day.row, hasRuns),
     activityHref: hasRuns ? `/runs/${encodeURIComponent(day.dayRuns[0]!.id)}` : null,
     alsoPlanned: day.workouts.filter((x) => x !== w && !isRest(x)).map((x) => x.title),
+    workoutId: w?.id ?? null,
+    // Today stays editable unless already marked; earlier days can only be marked.
+    action:
+      editable && !(date === todayIso && marked)
+        ? { kind: "edit" }
+        : markable
+          ? { kind: "mark", marked }
+          : null,
     coachHref: coachUrl({
       source: "training_week",
       date,

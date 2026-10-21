@@ -2,12 +2,7 @@ import { format, parseISO } from "date-fns";
 import type { GenerateWeeklyPlanResult } from "@/lib/ai-planning";
 import type { RaceGoal } from "@/lib/analytics/readiness";
 import type { DashboardInsights } from "@/lib/analytics";
-import type {
-  CalendarValidationIssue,
-  CalendarWorkout,
-  TrainingCalendarWeek,
-} from "@/lib/training-calendar";
-import { formatKm } from "@/lib/utils";
+import type { CalendarValidationIssue, TrainingCalendarWeek } from "@/lib/training-calendar";
 import { validateCalendarWeek } from "@/lib/training-calendar/calendarValidation";
 import { isHardTrainingRun } from "@/lib/training-calendar/hardSessionRules";
 
@@ -28,13 +23,6 @@ export interface PlanWeekTelemetry {
   goalAlignment: string;
   riskSummary: string | null;
   confidence: string;
-}
-
-export interface PlanTodayFocus {
-  title: string;
-  focus: string;
-  avoid: string | null;
-  workout: CalendarWorkout | null;
 }
 
 const PLAN_TYPE_LABEL: Record<string, string> = {
@@ -107,73 +95,6 @@ export function buildWeekTelemetry(
     riskSummary,
     confidence: week.confidence.replace("_", " "),
   };
-}
-
-/**
- * Today's session, but only when the week being viewed actually contains today.
- *
- * This used to fall back to matching the weekday *name*, so opening next week's
- * plan on a Wednesday matched next Wednesday's session and presented it as
- * "today in this plan". Returns null for any week that does not span today, and
- * the caller shows week-level framing instead.
- */
-export function buildTodayInPlan(week: TrainingCalendarWeek): PlanTodayFocus | null {
-  const todayIso = format(new Date(), "yyyy-MM-dd");
-  if (todayIso < week.weekStart.slice(0, 10) || todayIso > week.weekEnd.slice(0, 10)) {
-    return null;
-  }
-
-  const workout = week.workouts.find((w) => w.date.slice(0, 10) === todayIso) ?? null;
-
-  if (!workout || workout.modality === "rest") {
-    return {
-      title: "Rest / recovery",
-      focus: "Absorb load and protect freshness for upcoming sessions.",
-      avoid: "Adding unplanned intensity or long efforts.",
-      workout,
-    };
-  }
-
-  const metrics = [
-    workout.distanceKm != null ? formatKm(workout.distanceKm) : null,
-    workout.durationMin != null ? `${workout.durationMin} min` : null,
-  ]
-    .filter(Boolean)
-    .join(" · ");
-
-  return {
-    title: `${workout.title}${metrics ? ` · ${metrics}` : ""}`,
-    focus:
-      workout.reasoning ??
-      workout.purpose ??
-      "Execute as planned: stay within prescribed intensity.",
-    avoid: inferAvoid(workout, week),
-    workout,
-  };
-}
-
-function inferAvoid(workout: CalendarWorkout, week: TrainingCalendarWeek): string | null {
-  const isEasy =
-    workout.intensity === "easy" ||
-    workout.intensity === "recovery" ||
-    /easy|recovery|aerobic/i.test(workout.title);
-  const hardNearby = week.workouts.some(
-    (w) =>
-      w.id !== workout.id &&
-      w.modality === "run" &&
-      w.intensity === "hard" &&
-      w.status !== "skipped",
-  );
-  if (isEasy && hardNearby) {
-    return "Additional threshold work or heavy gym sessions.";
-  }
-  if (/race/i.test(workout.type + workout.title)) {
-    return "Pushing early: trust the taper and race-day pacing.";
-  }
-  if (workout.intensity === "hard") {
-    return "Stacking another quality session within 48 hours.";
-  }
-  return null;
 }
 
 export function buildIntegrityItems(

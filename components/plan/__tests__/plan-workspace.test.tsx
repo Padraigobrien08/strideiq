@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { PlanWorkspace } from "../plan-workspace";
 import { weeklyPlanToCalendarWeek } from "@/lib/training-calendar";
@@ -22,6 +22,8 @@ const resetPreview = vi.fn();
 const saveFromGenerated = vi.fn();
 const clearWeek = vi.fn();
 const refresh = vi.fn();
+const replaceWeek = vi.fn();
+const patchWorkout = vi.fn();
 
 const planState = {
   loading: false,
@@ -64,6 +66,8 @@ vi.mock("@/hooks/use-training-calendar", () => ({
     refresh,
     saveFromGenerated,
     clearWeek,
+    replaceWeek,
+    patchWorkout,
   }),
 }));
 
@@ -132,6 +136,8 @@ beforeEach(() => {
   saveFromGenerated.mockReset().mockReturnValue({ ok: true });
   clearWeek.mockReset();
   refresh.mockReset();
+  replaceWeek.mockReset();
+  patchWorkout.mockReset();
   planState.loading = false;
   planState.error = null;
   planState.errorStatus = null;
@@ -315,5 +321,53 @@ describe("the selected day (overhaul Phase 3, TRAIN-02)", () => {
     await userEvent.click(screen.getByRole("button", { name: /^Tue 10/ }));
     expect(screen.getByRole("heading", { level: 2, name: "Rest day" })).toBeInTheDocument();
     expect(window.location.search).toContain("date=2026-03-10");
+  });
+});
+
+describe("editing the selected day (overhaul Phase 3b)", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("edits today's session and saves the whole week in one step", async () => {
+    // Monday of the fixture week, so its one session is today's and still editable.
+    vi.useFakeTimers({ toFake: ["Date"], shouldAdvanceTime: true });
+    vi.setSystemTime(new Date(2026, 2, 9, 8, 0));
+    calendarState.savedWeek = savedWeek();
+    calendarState.hasSaved = true;
+    render(<PlanWorkspace />);
+
+    await userEvent.click(screen.getByRole("button", { name: /edit session/i }));
+    const editor = screen.getByRole("form", { name: /edit saved easy run/i });
+    const distance = within(editor).getByRole("spinbutton", { name: "Distance" });
+    await userEvent.clear(distance);
+    await userEvent.type(distance, "10");
+    await userEvent.click(within(editor).getByRole("button", { name: "Save changes" }));
+
+    expect(replaceWeek).toHaveBeenCalledTimes(1);
+    const saved = replaceWeek.mock.calls[0]![0];
+    expect(saved.workouts[0]).toMatchObject({ distanceKm: 10, status: "modified" });
+    expect(screen.queryByRole("form", { name: /edit/i })).not.toBeInTheDocument();
+  });
+
+  it("marks an earlier session done when no run was logged, and can undo it", async () => {
+    calendarState.savedWeek = savedWeek();
+    calendarState.hasSaved = true;
+    render(<PlanWorkspace />);
+
+    expect(screen.queryByRole("button", { name: /edit session/i })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Mark done" }));
+    expect(patchWorkout).toHaveBeenCalledWith(
+      (calendarState.savedWeek as { workouts: { id: string }[] }).workouts[0]!.id,
+      { status: "completed" },
+    );
+  });
+
+  it("offers no editing on an unsaved preview", () => {
+    planState.result = preview();
+    render(<PlanWorkspace />);
+    expect(
+      screen.queryByRole("button", { name: /edit session|mark done/i }),
+    ).not.toBeInTheDocument();
   });
 });

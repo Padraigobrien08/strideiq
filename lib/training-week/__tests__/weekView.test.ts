@@ -270,3 +270,31 @@ describe("the weekly summary", () => {
     expect(summaryLine(v)).toBe("5 sessions · 49 km planned");
   });
 });
+
+describe("what each day allows (Phase 3b)", () => {
+  it("edits sessions still to come, today included, and rest days", () => {
+    expect(view("2026-10-23").selected.action).toEqual({ kind: "edit" });
+    expect(view("2026-10-21").selected.action).toEqual({ kind: "edit" });
+    expect(view("2026-10-22").selected).toMatchObject({
+      workoutId: "w-2026-10-22",
+      action: { kind: "edit" },
+    });
+  });
+
+  it("only marks an earlier session with no run logged", () => {
+    expect(view("2026-10-19", PLAN, []).selected.action).toEqual({ kind: "mark", marked: null });
+  });
+
+  it("offers nothing once a run is logged, or on a day with nothing planned", () => {
+    expect(view("2026-10-19").selected.action).toBeNull();
+    expect(view("2026-10-25").selected).toMatchObject({ workoutId: null, action: null });
+  });
+
+  it("shows a manual mark so it can be undone", () => {
+    const plan = week([workout({ date: "2026-10-19", status: "skipped", distanceKm: 8 })]);
+    expect(view("2026-10-19", plan, []).selected.action).toEqual({
+      kind: "mark",
+      marked: "skipped",
+    });
+  });
+});

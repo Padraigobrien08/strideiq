@@ -163,6 +163,28 @@ for (const v of VIEWPORTS) {
       await expectInFirstScreen(status.getByRole("link").first(), v, "selected day action");
     });
 
+    test("rule 1 holds with Training's session editor open (Phase 3b)", async ({ page }, info) => {
+      await open(page, "/training");
+      // Any day still to come has an editable session; walk back from Sunday to find
+      // one, so the check works whatever day the suite runs on.
+      const days = page.getByRole("list", { name: "Days this week" }).getByRole("button");
+      const edit = page.getByRole("button", { name: "Edit session" });
+      for (let i = (await days.count()) - 1; i >= 0 && !(await edit.isVisible()); i--) {
+        await days.nth(i).click();
+      }
+      test.skip(!(await edit.isVisible()), "no editable session left this week");
+      await edit.click();
+      await expect(page.getByRole("form", { name: /^Edit / })).toBeVisible();
+      const m = await page.evaluate(() => ({
+        layoutWidth: window.innerWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+      }));
+      expect.soft(m.layoutWidth, "editor open: lays out at the device width").toBe(v.width);
+      expect.soft(m.scrollWidth, "editor open: no sideways scroll").toBeLessThanOrEqual(v.width);
+      await page.getByRole("form", { name: /^Edit / }).scrollIntoViewIfNeeded();
+      await attachScreen(page, info, "training editor open");
+    });
+
     test("rule 5: Today and Training are capped and centred on wide screens", async ({ page }) => {
       test.skip(v.width <= CONTENT_MAX + 64, "only wider than the cap");
       for (const path of ["/home", "/training"]) {

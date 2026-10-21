@@ -96,6 +96,8 @@ const base: DayDetailView = {
   activityHref: null,
   alsoPlanned: [],
   coachHref: "/coach?source=training_week&date=2026-10-23&workout=w-1",
+  workoutId: "w-1",
+  action: { kind: "edit" },
 };
 
 describe("the week strip", () => {
