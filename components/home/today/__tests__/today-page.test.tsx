@@ -177,4 +177,28 @@ describe("Today", () => {
     const { container } = render(<TodayPage view={runView()} />);
     expect(container.querySelector("[data-content-cap]")?.className).toMatch(/max-w-\[1360px\]/);
   });
+
+  it("puts a rest day's actions before tomorrow's preview (rule 2 on phones)", () => {
+    render(
+      <TodayPage
+        view={runView({
+          session: {
+            kind: "rest",
+            title: "Recovery day",
+            why: "A planned rest day.",
+            guidance: { mobility: "Mobility work.", sleep: "Sleep well.", fuel: "Eat well." },
+            tomorrow: {
+              title: "Easy run",
+              figures: { distance: "6 km", duration: null, pace: null },
+            },
+            source: "plan",
+            calendarWorkoutId: "w-rest",
+          },
+        })}
+      />,
+    );
+    const ask = screen.getByRole("link", { name: "Ask about today" });
+    const tomorrow = screen.getByText("Tomorrow");
+    expect(ask.compareDocumentPosition(tomorrow) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
 });

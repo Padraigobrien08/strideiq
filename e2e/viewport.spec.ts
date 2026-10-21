@@ -108,7 +108,13 @@ for (const v of VIEWPORTS) {
       if (hasFirstScreenRules(v)) {
         const main = page.locator("main");
         await expectInFirstScreen(main.getByRole("heading", { level: 1 }), v, "session title");
-        await expectInFirstScreen(main.locator("dl").first(), v, "session figures");
+        // A run's figures, inside the session itself: a rest day has guidance instead,
+        // and an unscoped `main dl` then matched the race outlook further down, so the
+        // check failed on every rest day of the seeded week (Wednesdays and Sundays).
+        const figures = main.locator('section[aria-labelledby="today-session"] dl');
+        if (await figures.count()) {
+          await expectInFirstScreen(figures.first(), v, "session figures");
+        }
         await expectInFirstScreen(
           main.getByRole("link", { name: /^Ask about (this run|today)$/ }),
           v,
