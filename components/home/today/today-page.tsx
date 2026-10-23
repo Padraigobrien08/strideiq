@@ -85,6 +85,10 @@ export function TodayPage({ view, below }: { view: TodayView; below?: ReactNode 
             </Link>
           </div>
 
+          {view.session.kind === "rest" && view.session.tomorrow ? (
+            <RestTomorrow tomorrow={view.session.tomorrow} />
+          ) : null}
+
           {!view.hasPlan ? (
             <p className="mt-4 text-sm text-muted-foreground">
               No plan saved for this week, so StrideIQ chose today from your recent training.{" "}
@@ -211,10 +215,11 @@ function RestPrescription({ session }: { session: TodayRestSession }) {
       >
         {session.title}
       </h1>
-      <p className="mt-4 max-w-[65ch] text-base leading-relaxed text-muted-foreground">
+      <p className="mt-3 max-w-[65ch] text-base leading-relaxed text-muted-foreground sm:mt-4">
         {session.why}
       </p>
-      <ul className="mt-8 grid gap-5 border-t border-[var(--border-subtle)] pt-8 sm:grid-cols-3">
+      {/* Tighter on phones so "Ask about today" stays on a 375×667 first screen. */}
+      <ul className="mt-5 grid gap-4 border-t border-[var(--border-subtle)] pt-5 sm:mt-8 sm:grid-cols-3 sm:gap-5 sm:pt-8">
         {guidance.map(({ icon: Icon, title, text }) => (
           <li key={title} className="flex gap-3">
             <Icon className="mt-0.5 h-5 w-5 shrink-0 text-[var(--positive)]" aria-hidden />
@@ -225,24 +230,27 @@ function RestPrescription({ session }: { session: TodayRestSession }) {
           </li>
         ))}
       </ul>
-      {session.tomorrow ? (
-        <div className="mt-8 rounded-xl bg-[var(--surface)] px-5 py-4">
-          <p className="text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-[var(--muted-subtle)]">
-            Tomorrow
-          </p>
-          <p className="mt-1 font-semibold text-foreground">{session.tomorrow.title}</p>
-          <p className="text-sm text-muted-foreground">
-            {[
-              session.tomorrow.figures.distance,
-              session.tomorrow.figures.duration?.text,
-              session.tomorrow.figures.pace?.text,
-            ]
-              .filter(Boolean)
-              .join(" · ")}
-          </p>
-        </div>
-      ) : null}
     </>
+  );
+}
+
+/**
+ * What comes after a rest day. Below the actions, like a run's context: the answer and
+ * what to do with it come first (viewport contract rule 2).
+ */
+function RestTomorrow({ tomorrow }: { tomorrow: NonNullable<TodayRestSession["tomorrow"]> }) {
+  return (
+    <div className="mt-6 rounded-xl bg-[var(--surface)] px-5 py-4">
+      <p className="text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-[var(--muted-subtle)]">
+        Tomorrow
+      </p>
+      <p className="mt-1 font-semibold text-foreground">{tomorrow.title}</p>
+      <p className="text-sm text-muted-foreground">
+        {[tomorrow.figures.distance, tomorrow.figures.duration?.text, tomorrow.figures.pace?.text]
+          .filter(Boolean)
+          .join(" · ")}
+      </p>
+    </div>
   );
 }
 

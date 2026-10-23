@@ -18,8 +18,8 @@ export interface PlanIntegrityItem {
 export interface PlanWeekTelemetry {
   volumeKm: number | null;
   hardSessions: number;
-  freshness: number;
-  freshnessLabel: string;
+  /** Training load balance, as everywhere else: form % of chronic load and its band. */
+  loadBalance: string;
   goalAlignment: string;
   riskSummary: string | null;
   confidence: string;
@@ -72,7 +72,6 @@ export function buildWeekTelemetry(
           /\btempo|interval|threshold|race|quality\b/i.test(`${w.type} ${w.title}`)),
     ).length;
 
-  const freshness = analytics?.fatigue.freshness ?? 0;
   const readiness = analytics?.raceReadiness?.score ?? analytics?.halfMarathonReadiness.score ?? 0;
 
   let goalAlignment = "moderate";
@@ -89,12 +88,23 @@ export function buildWeekTelemetry(
   return {
     volumeKm: volumeKm > 0 ? Math.round(volumeKm * 10) / 10 : null,
     hardSessions,
-    freshness: Math.round(freshness),
-    freshnessLabel: analytics?.fatigue.label ?? "—",
+    loadBalance: loadBalanceText(analytics?.fatigue),
     goalAlignment,
     riskSummary,
     confidence: week.confidence.replace("_", " "),
   };
+}
+
+/**
+ * The same reading the rest of the app shows (load-balance phases 1b–3a): form as a
+ * share of chronic load, with its band, and no number at all while the load history is
+ * too short to mean anything.
+ */
+function loadBalanceText(fatigue: DashboardInsights["fatigue"] | undefined): string {
+  if (!fatigue) return "—";
+  if (!fatigue.loadEvidence.sufficient) return "Not enough evidence";
+  const pct = Math.round(fatigue.formPct);
+  return `${pct > 0 ? "+" : ""}${pct}% · ${fatigue.label}`;
 }
 
 export function buildIntegrityItems(

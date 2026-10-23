@@ -107,6 +107,13 @@ describe("an existing goal", () => {
     expect(screen.getByText(/marathon/i)).toBeInTheDocument();
   });
 
+  // The date-only string is a local date: day first, month in words, never shifted a
+  // day by being read as UTC midnight.
+  it("shows the race date as the date it is, in words", () => {
+    render(<CompactRaceGoalForm />);
+    expect(screen.getByText(/11 Oct 2026/)).toBeInTheDocument();
+  });
+
   it("starts collapsed, unlike the empty state", () => {
     render(<CompactRaceGoalForm />);
     expect(screen.queryByLabelText(/race date/i)).not.toBeInTheDocument();

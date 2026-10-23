@@ -94,8 +94,28 @@ describe("week telemetry", () => {
     expect(buildWeekTelemetry(calendarWeekFixture([]), null).volumeKm).toBeNull();
   });
 
-  it("does not invent a freshness reading without analytics", () => {
-    expect(buildWeekTelemetry(week(), null).freshnessLabel).toBe("—");
+  it("does not invent a load balance without analytics", () => {
+    expect(buildWeekTelemetry(week(), null).loadBalance).toBe("—");
+  });
+
+  // The telemetry card used to show the 0–100 freshness score under its old name; it
+  // now reads like the rest of the app (load-balance phases 1b–3a).
+  it("shows load balance as form % of chronic load with its band", () => {
+    const analytics = {
+      fatigue: { formPct: 6.4, label: "Neutral", loadEvidence: { sufficient: true } },
+      halfMarathonReadiness: { score: 70 },
+      intensityAdvice: { status: "ok" },
+    } as never;
+    expect(buildWeekTelemetry(week(), analytics).loadBalance).toBe("+6% · Neutral");
+  });
+
+  it("says when there is not enough load history to judge", () => {
+    const analytics = {
+      fatigue: { formPct: -30, label: "Fatigued", loadEvidence: { sufficient: false } },
+      halfMarathonReadiness: { score: 70 },
+      intensityAdvice: { status: "ok" },
+    } as never;
+    expect(buildWeekTelemetry(week(), analytics).loadBalance).toBe("Not enough evidence");
   });
 
   it("reads confidence as prose, not as an enum", () => {
